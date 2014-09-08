@@ -4,7 +4,12 @@
   "version": "0.0.0",
   "description": "Some module...",
   "dependencies": {
-    "lodash": "~2.4.1"
+    "lodash": "~2.4.1",
+    "ramda": "~0.3.0",
+    "es5-shim": "~4.0.3",
+    "q": "1.0.1",
+    "subject": "~0.5.9",
+    "jquery": "~2.1.1"
   },
   "devDependencies": {
     "requirejs": "*",

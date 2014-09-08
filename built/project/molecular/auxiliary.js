@@ -1,0 +1,1 @@
+define(["require","exports","module"],function(t,n,r){n.transfer=function(t,n,r){_.each(t,function(e){r[e]||(r[e]=n[e])})},n.toCamelCase=function(t){return t.replace(/[-_\s]+(.)?/g,function(e,t){return t?t.toUpperCase():""})},n.toDashed=function(t){return t.replace(/([A-Z])/g,function(e){return"-"+e.toLowerCase()})}});

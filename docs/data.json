@@ -1,0 +1,305 @@
+{
+    "project": {
+        "name": "molecular",
+        "version": "0.0.0"
+    },
+    "files": {
+        "src/molecular/node/request-system.js": {
+            "name": "src/molecular/node/request-system.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/molecular/view/directives.js": {
+            "name": "src/molecular/view/directives.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/molecular/view/dom-manipulation.js": {
+            "name": "src/molecular/view/dom-manipulation.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/molecular/view/rendering.js": {
+            "name": "src/molecular/view/rendering.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/molecular/node.js": {
+            "name": "src/molecular/node.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/molecular/view.js": {
+            "name": "src/molecular/view.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/molecular.js": {
+            "name": "src/molecular.js",
+            "modules": {
+                "Molecular": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {
+        "Molecular": {
+            "name": "Molecular",
+            "submodules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "src/molecular.js",
+            "line": 5,
+            "description": "AMD module."
+        }
+    },
+    "classes": {},
+    "classitems": [
+        {
+            "file": "src/molecular/node/request-system.js",
+            "line": 6,
+            "description": "Builds a request object to be passed on.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "options",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/request-system.js",
+            "line": 23,
+            "description": "Initialize a request.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "options",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/request-system.js",
+            "line": 43,
+            "description": "Attempts to handle a request.\nChecks if the current object can handle the request by\ncalling `canHandleRequest`.\n\nIf is able of resolving the request,",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "request",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/request-system.js",
+            "line": 77,
+            "description": "Request handling.\n\nThis method is called once the `canHandleRequest` responds true for\na given request.",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/request-system.js",
+            "line": 91,
+            "description": "Synchronous.\n\nVerifies if the current object is capable of handling a given request.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "request",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view/directives.js",
+            "line": 11,
+            "description": "<div data-m-click=\"something\"></div>",
+            "params": [
+                {
+                    "name": "element",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view/dom-manipulation.js",
+            "line": 5,
+            "description": "The",
+            "type": "{[type]}",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view/rendering.js",
+            "line": 33,
+            "description": "Template defaults to undefined.",
+            "type": "{[type]}",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view/rendering.js",
+            "line": 39,
+            "description": "Should return a function.",
+            "type": "{[type]}",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node.js",
+            "line": 16,
+            "description": "Array on which children nodes will be stored.",
+            "type": "{Array}",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node.js",
+            "line": 23,
+            "description": "Hash on which event handlers will be set.",
+            "type": "{Object}",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node.js",
+            "line": 40,
+            "description": "Puts children objects into the node.",
+            "params": [
+                {
+                    "name": "children",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view.js",
+            "line": 14,
+            "description": "Pick some options.",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view.js",
+            "line": 25,
+            "description": "The adapted DOM element.",
+            "type": "{[type]}",
+            "class": ""
+        }
+    ],
+    "warnings": [
+        {
+            "message": "Missing item type\nBuilds a request object to be passed on.",
+            "line": " src/molecular/node/request-system.js:6"
+        },
+        {
+            "message": "Missing item type\nInitialize a request.",
+            "line": " src/molecular/node/request-system.js:23"
+        },
+        {
+            "message": "Missing item type\nAttempts to handle a request.\nChecks if the current object can handle the request by\ncalling `canHandleRequest`.\n\nIf is able of resolving the request,",
+            "line": " src/molecular/node/request-system.js:43"
+        },
+        {
+            "message": "Missing item type\nRequest handling.\n\nThis method is called once the `canHandleRequest` responds true for\na given request.",
+            "line": " src/molecular/node/request-system.js:77"
+        },
+        {
+            "message": "Missing item type\nSynchronous.\n\nVerifies if the current object is capable of handling a given request.",
+            "line": " src/molecular/node/request-system.js:91"
+        },
+        {
+            "message": "Missing item type\n<div data-m-click=\"something\"></div>",
+            "line": " src/molecular/view/directives.js:11"
+        },
+        {
+            "message": "Missing item type\nThe",
+            "line": " src/molecular/view/dom-manipulation.js:5"
+        },
+        {
+            "message": "Missing item type\nTemplate defaults to undefined.",
+            "line": " src/molecular/view/rendering.js:33"
+        },
+        {
+            "message": "Missing item type\nShould return a function.",
+            "line": " src/molecular/view/rendering.js:39"
+        },
+        {
+            "message": "Missing item type\nArray on which children nodes will be stored.",
+            "line": " src/molecular/node.js:16"
+        },
+        {
+            "message": "Missing item type\nHash on which event handlers will be set.",
+            "line": " src/molecular/node.js:23"
+        },
+        {
+            "message": "Missing item type\nPuts children objects into the node.",
+            "line": " src/molecular/node.js:40"
+        },
+        {
+            "message": "Missing item type\nPick some options.",
+            "line": " src/molecular/view.js:14"
+        },
+        {
+            "message": "Missing item type\nThe adapted DOM element.",
+            "line": " src/molecular/view.js:25"
+        }
+    ]
+}
