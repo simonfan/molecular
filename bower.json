@@ -1,7 +1,7 @@
 {
   "name": "molecular",
   "main": "built/molecular.js",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Some module...",
   "dependencies": {
     "lodash": "~2.4.1",
