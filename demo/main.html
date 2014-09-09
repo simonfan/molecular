@@ -95,13 +95,7 @@
 						var defer = q.defer();
 
 
-						setTimeout(function (argument) {
-
-							defer.reject(new Error('qweqwe'));
-
-						}, 2000)
-
-						return defer.promise;
+						throw new Error('qweqwe');
 
 					},
 				});

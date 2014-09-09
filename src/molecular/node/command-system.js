@@ -73,27 +73,15 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 
 	function _handleBubblingCommand(handlerObj, command) {
 
-		var handlerFn = handlerObj.getCommandHandler(command.name, command.options);
+		q.fcall(handlerObj.handleCommand.bind(handlerObj), command.name, command.options)
+			.then(function (res) {
+				command.resolve(res);
 
-		if (handlerFn) {
-
-			q(handlerFn.call(handlerObj, command.options))
-				.then(function (res) {
-
-					command.resolve(res);
-
-					return command.promise;
-
-				}).fail(function (e) {
-					// handling failed
-					_bubbleCommand(handlerObj, command);
-				}.bind(handlerObj));
-		} else {
-
-
-			_bubbleCommand(handlerObj, command);
-
-		}
+				return command.promise;
+			}, function (err) {
+				// handling failed
+				_bubbleCommand(handlerObj, command);
+			});
 	}
 
 	///////////////////////
@@ -105,47 +93,57 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 	 * @param  {[type]} command [description]
 	 * @return {[type]}         [description]
 	 */
-	function _captureCommand(possibleCapturers, command) {
+	function _captureCommand(possibleHandlerObjs, command) {
 
-		// [2] get first possibility from possibleCapturers array
-		var possibility = possibleCapturers.shift();
+		// [2] get first handlerObj from possibleHandlerObjs array
+		var handlerObj = possibleHandlerObjs.shift();
 
-		if (possibility) {
+		if (handlerObj) {
 
-			_handleCapturingCommand(possibility, command, possibleCapturers);
+			_handleCapturingCommand(handlerObj, command, possibleHandlerObjs);
 
 		} else {
-			// no possibleCapturers left,
+			// no possibleHandlerObjs left,
 			// throw error.
 			command.reject(commandResolverError(command));
 		}
 	}
 
-	function _handleCapturingCommand(possibility, command, possibleCapturers) {
+	function _handleCapturingCommand(handlerObj, command, possibleHandlerObjs) {
 
-		// attempt to handle the command on the current possibility
-		var handler = possibility.getCommandHandler(command.name, command.options);
+		// // attempt to handle the command on the current handlerObj
+		// var handler = handlerObj.getCommandHandler(command.name, command.options);
 
-		if (handler) {
+		// if (handler) {
 
-			q(handler.call(possibility, command.options))
-				.then(function (res) {
-					// resolve
-					command.resolve(res);
-					return command.promise;
-				})
-				.fail(function (err) {
-					// try next possibility
+		// 	q.fcall(handler.bind(handlerObj), command.options)
+		// 		.then(function (res) {
+		// 			// resolve
+		// 			command.resolve(res);
+		// 			return command.promise;
+		// 		}, function (err) {
+		// 			// try next handlerObj
 
-					_captureCommand(possibleCapturers, command);
+		// 			_captureCommand(possibleHandlerObjs, command);
 
-				});
+		// 		});
 
-		} else {
+		// } else {
 
-			_captureCommand(possibleCapturers, command);
+		// 	_captureCommand(possibleHandlerObjs, command);
 
-		}
+		// }
+
+
+		q.fcall(handlerObj.handleCommand.bind(handlerObj), command.name, command.options)
+			.then(function (res) {
+				// resolve
+				command.resolve(res);
+				return command.promise;
+			}, function (err) {
+				// try next handlerObj
+				_captureCommand(possibleHandlerObjs, command);
+			});
 	}
 
 
@@ -168,21 +166,35 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 		} else {
 			// capture
 
-			// [1] find all possibleCapturers
-			var possibleCapturers = _.clone(this.getChildren());
+			// [1] find all possibleHandlerObjs
+			var possibleHandlerObjs = _.clone(this.getChildren());
 
-			possibleCapturers.forEach(function (p) {
-				possibleCapturers = possibleCapturers.concat(p.getChildren());
+			possibleHandlerObjs.forEach(function (p) {
+				possibleHandlerObjs = possibleHandlerObjs.concat(p.getChildren());
 			});
 
 			// capture
-			_captureCommand(possibleCapturers, command);
+			_captureCommand(possibleHandlerObjs, command);
 		}
 
 		// return the promise.
 		return command.promise;
 	};
 
+	/**
+	 * Method that attempts to handle
+	 * the command received.
+	 *
+	 * Throw errors in order to let the chain know the command
+	 * was not successfully handled.
+	 *
+	 * @param  {[type]} name    [description]
+	 * @param  {[type]} options [description]
+	 * @return {[type]}         [description]
+	 */
+	exports.handleCommand = function handleCommand(name, options) {
+		return this[name](options);
+	};
 
 	/**
 	 * Method that retrieves the command handler given the command name

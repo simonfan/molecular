@@ -82,7 +82,7 @@
 		});
 
 
-		it('request system', function (testdone) {
+		it('command system', function (testdone) {
 
 			var rootControl = {};
 
@@ -102,7 +102,7 @@
 				branch2 = molecularNode({ parent: root }),
 				branch11 = molecularNode({ parent: branch1 });
 
-			branch11.issueRequest('navigate', {
+			branch11.issueCommand('navigate', {
 				resource: 'books',
 				query: {
 					id: 15

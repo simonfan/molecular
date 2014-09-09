@@ -87,7 +87,7 @@
     "classitems": [
         {
             "file": "src/molecular/node/command-system.js",
-            "line": 7,
+            "line": 11,
             "description": "Decorator pattern for building a command object.",
             "params": [
                 {
@@ -109,7 +109,7 @@
         },
         {
             "file": "src/molecular/node/command-system.js",
-            "line": 50,
+            "line": 54,
             "description": "Bubbles a command up the chain.",
             "params": [
                 {
@@ -126,7 +126,7 @@
         },
         {
             "file": "src/molecular/node/command-system.js",
-            "line": 72,
+            "line": 91,
             "description": "Captures a command.",
             "params": [
                 {
@@ -143,7 +143,7 @@
         },
         {
             "file": "src/molecular/node/command-system.js",
-            "line": 97,
+            "line": 150,
             "description": "Initialize a command.",
             "params": [
                 {
@@ -165,8 +165,46 @@
         },
         {
             "file": "src/molecular/node/command-system.js",
-            "line": 163,
-            "description": "Command handling.\n\na given command.",
+            "line": 184,
+            "description": "Method that attempts to handle\nthe command received.\n\nThrow errors in order to let the chain know the command\nwas not successfully handled.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "options",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/command-system.js",
+            "line": 199,
+            "description": "Method that retrieves the command handler given the command name\nand the command options.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "options",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
             "class": ""
         },
         {
@@ -345,23 +383,27 @@
     "warnings": [
         {
             "message": "Missing item type\nDecorator pattern for building a command object.",
-            "line": " src/molecular/node/command-system.js:7"
+            "line": " src/molecular/node/command-system.js:11"
         },
         {
             "message": "Missing item type\nBubbles a command up the chain.",
-            "line": " src/molecular/node/command-system.js:50"
+            "line": " src/molecular/node/command-system.js:54"
         },
         {
             "message": "Missing item type\nCaptures a command.",
-            "line": " src/molecular/node/command-system.js:72"
+            "line": " src/molecular/node/command-system.js:91"
         },
         {
             "message": "Missing item type\nInitialize a command.",
-            "line": " src/molecular/node/command-system.js:97"
+            "line": " src/molecular/node/command-system.js:150"
         },
         {
-            "message": "Missing item type\nCommand handling.\n\na given command.",
-            "line": " src/molecular/node/command-system.js:163"
+            "message": "Missing item type\nMethod that attempts to handle\nthe command received.\n\nThrow errors in order to let the chain know the command\nwas not successfully handled.",
+            "line": " src/molecular/node/command-system.js:184"
+        },
+        {
+            "message": "Missing item type\nMethod that retrieves the command handler given the command name\nand the command options.",
+            "line": " src/molecular/node/command-system.js:199"
         },
         {
             "message": "Missing item type\n<div data-m-click=\"something\"></div>",

@@ -90,6 +90,10 @@ define('molecular/node/command-system',['require','exports','module','es5-shim',
 
 	var q = require('q');
 
+
+
+
+
 	/**
 	 * Decorator pattern for building a command object.
 	 *
@@ -97,88 +101,137 @@ define('molecular/node/command-system',['require','exports','module','es5-shim',
 	 * @param  {[type]} propagation [description]
 	 * @return {[type]}             [description]
 	 */
-	function _buildCommandObject(options, propagation) {
+	function _buildCommandObject(name, options) {
 
 		// build a command object
 		var command = q.defer();
 
-		// propagation defaults to 'bubble'
-		propagation = propagation || options.propagation || 'bubble';
-
 		// set properties
-		command.issuer      = options.issuer || this;
-		command.name        = options.name || options.command;
-		command.options     = options;
-		command.data        = options.data;
-		command.propagation = propagation;
+		command.issuer  = this;
+		command.name    = name;
+		command.options = options;
 
-
-		// stop propagation
-		command.propagate = true;
-		command.stopPropagation = function () {
-			this.propagate = false;
-		};
-
+		// propagation defaults to bubble.
+		command.propagation = options.propagation || 'bubble';
 
 		return command;
 	}
 
-	function commandResolverError(commandName) {
+	function commandResolverError(command) {
 		var err = new Error([
 			'[molecular/node/command-system]',
-			'No resolver was found for "' + commandName + '"',
+			'No resolver was found for "' + command.name + '"',
 			'command.'
 		].join(' '));
 
 		return err;
 	}
 
+
+
+
+
+
+	//////////////////////
+	// BUBBLING COMMAND //
+	//////////////////////
+
+
 	/**
 	 * Bubbles a command up the chain.
 	 * @param  {[type]} command [description]
 	 * @return {[type]}         [description]
 	 */
-	function _bubbleCommand(command) {
+	function _bubbleCommand(handlerObj, command) {
 
-		var parent = this.getParent();
+		var parent = handlerObj.getParent();
 
 		if (parent) {
-
 			// let parent handle the command.
-			parent.handleCommand(command);
+			_handleBubblingCommand(parent, command);
 
-			if (command.promise.isPending()) {
-				// continue bubbling
-				_bubbleCommand.call(parent, command);
-			}
-
+		} else {
+			// no parent left, at root node
+			// throw error
+			command.reject(commandResolverError(command));
 		}
 	}
+
+	function _handleBubblingCommand(handlerObj, command) {
+
+		q.fcall(handlerObj.handleCommand.bind(handlerObj), command.name, command.options)
+			.then(function (res) {
+				command.resolve(res);
+
+				return command.promise;
+			}, function (err) {
+				// handling failed
+				_bubbleCommand(handlerObj, command);
+			});
+	}
+
+	///////////////////////
+	// CAPTURING COMMAND //
+	///////////////////////
 
 	/**
 	 * Captures a command.
 	 * @param  {[type]} command [description]
 	 * @return {[type]}         [description]
 	 */
-	function _captureCommand(command) {
+	function _captureCommand(possibleHandlerObjs, command) {
 
-		var children = this.children,
-			i = 0, length = children.length;
+		// [2] get first handlerObj from possibleHandlerObjs array
+		var handlerObj = possibleHandlerObjs.shift();
 
+		if (handlerObj) {
 
-		while (command.promise.isPending() && i < length) {
+			_handleCapturingCommand(handlerObj, command, possibleHandlerObjs);
 
-			var child = children[i];
-
-			child.handleCommand(command);
-
-			if (command.promise.isPending()) {
-				_captureCommand.call(child, command);
-			}
-
-			++i;
+		} else {
+			// no possibleHandlerObjs left,
+			// throw error.
+			command.reject(commandResolverError(command));
 		}
 	}
+
+	function _handleCapturingCommand(handlerObj, command, possibleHandlerObjs) {
+
+		// // attempt to handle the command on the current handlerObj
+		// var handler = handlerObj.getCommandHandler(command.name, command.options);
+
+		// if (handler) {
+
+		// 	q.fcall(handler.bind(handlerObj), command.options)
+		// 		.then(function (res) {
+		// 			// resolve
+		// 			command.resolve(res);
+		// 			return command.promise;
+		// 		}, function (err) {
+		// 			// try next handlerObj
+
+		// 			_captureCommand(possibleHandlerObjs, command);
+
+		// 		});
+
+		// } else {
+
+		// 	_captureCommand(possibleHandlerObjs, command);
+
+		// }
+
+
+		q.fcall(handlerObj.handleCommand.bind(handlerObj), command.name, command.options)
+			.then(function (res) {
+				// resolve
+				command.resolve(res);
+				return command.promise;
+			}, function (err) {
+				// try next handlerObj
+				_captureCommand(possibleHandlerObjs, command);
+			});
+	}
+
 
 	/**
 	 * Initialize a command.
@@ -187,91 +240,63 @@ define('molecular/node/command-system',['require','exports','module','es5-shim',
 	 * @param  {[type]} data [description]
 	 * @return {[type]}         [description]
 	 */
-	exports.issueCommand = function issueCommand(data, propagation) {
+	exports.issueCommand = function issueCommand(name, options) {
 
 		// build a command object
-		var command = q.defer();
+		var command = _buildCommandObject(name, options);
 
+		if (command.propagation === 'bubble') {
+			// bubble up
+			_bubbleCommand(this, command);
 
-		// propagation defaults to 'bubble'
-		propagation = propagation || data.propagation || 'bubble';
+		} else {
+			// capture
 
-		// set properties
-		command.issuer      = data.issuer || this;
-		command.name        = data.name || data.command;
-		command.data        = data;
-		command.propagation = propagation;
+			// [1] find all possibleHandlerObjs
+			var possibleHandlerObjs = _.clone(this.getChildren());
 
+			possibleHandlerObjs.forEach(function (p) {
+				possibleHandlerObjs = possibleHandlerObjs.concat(p.getChildren());
+			});
 
-		// first attempt to handle command on the current instance
-		this.handleCommand(command);
-
-		// if the command promise has not been solved, propagate
-		if (command.promise.isPending()) {
-
-			if (!propagation || propagation === 'bubble') {
-				_bubbleCommand.call(this, command);
-			} else if (propagation === 'capture') {
-				_captureCommand.call(this, command);
-			} else {
-				// propagation === 'both'
-
-				// first bubble
-				_bubbleCommand.call(this, command);
-
-				if (command.promise.isPending()) {
-					// then capture ONLY if comamnd is not resolved.
-					_captureCommand.call(this, command);
-				}
-			}
-
-
-			/////////////////////
-			// CHANLLENGING //
-			/////////////////////
-			// if after all propagation, the command is still
-			// pending, handle the pending command.
-			// if (command.promise.isPending()) {
-
-			// 	this.handlePendingCommand(command);
-			// }
-
+			// capture
+			_captureCommand(possibleHandlerObjs, command);
 		}
-
-		command.promise.fail(this.handleCommandFailure.bind(this));
-
-
 
 		// return the promise.
 		return command.promise;
 	};
 
 	/**
-	 * Command handling.
+	 * Method that attempts to handle
+	 * the command received.
 	 *
-	 * a given command.
+	 * Throw errors in order to let the chain know the command
+	 * was not successfully handled.
+	 *
+	 * @param  {[type]} name    [description]
+	 * @param  {[type]} options [description]
+	 * @return {[type]}         [description]
 	 */
-	exports.handleCommand = function handleCommand(command) {
+	exports.handleCommand = function handleCommand(name, options) {
+		return this[name](options);
+	};
 
-		var data   = command.data,
-			name = data.name;
+	/**
+	 * Method that retrieves the command handler given the command name
+	 * and the command options.
+	 *
+	 * @param  {[type]} name    [description]
+	 * @param  {[type]} options [description]
+	 * @return {[type]}         [description]
+	 */
+	exports.getCommandHandler = function getCommandHandler(name, options) {
 
-		if (this[name]) {
-			this[name](command);
+		var handlerFn = this[name];
+
+		if (_.isFunction(handlerFn)) {
+			return handlerFn;
 		}
-	};
-
-	exports.handlePendingCommand = function handlePendingCommand(command) {
-		// reject, as no resolver was found
-		// and this object is root.
-	//	console.warn(commandResolverError(command.name));
-
-		// solve silently
-		command.resolve();
-	};
-
-	exports.handleCommandFailure = function handleCommandFailure(e) {
-		throw(e);
 	};
 });
 
@@ -338,6 +363,10 @@ define('molecular/node',['require','exports','module','subject','molecular/auxil
 			}
 
 			return this;
+		},
+
+		getChildren: function getChildren() {
+			return this.children;
 		},
 	});
 
