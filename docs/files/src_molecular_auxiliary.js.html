@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/molecular.js - molecular</title>
+    <title>src/molecular/auxiliary.js - molecular</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -82,27 +82,41 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: src/molecular.js</h1>
+                        <h1 class="file-heading">File: src/molecular/auxiliary.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
-//     Molecular
-//     (c) sfan
-//     Molecular is licensed under the MIT terms.
+define(function defMolecularAuxiliary(require, exports, module) {
 
-/**
- * AMD module.
- *
- * @module Molecular
- */
-
-define(function defMolecular(require, exports, module) {
+	exports.transfer = function transfer(properties, from, to) {
+		_.each(properties, function (prop) {
+			if (!to[prop]) {
+				to[prop] = from[prop];
+			}
+		});
+	};
 
 
-	exports.node = require(&#x27;molecular/node&#x27;);
-	exports.view = require(&#x27;molecular/view&#x27;);
+	/**
+	 * Copied from Epeli&#x27;s underscore.string &quot;camelize&quot;
+	 * https://github.com/epeli/underscore.string/blob/master/lib/underscore.string.js
+	 *
+	 * @param  {[type]} str [description]
+	 * @return {[type]}     [description]
+	 */
+	exports.toCamelCase = function toCamelCase(str) {
+		return str.replace(/[-_\s]+(.)?/g, function(match, c){ return c ? c.toUpperCase() : &quot;&quot;; });
+	};
 
-
+	/**
+	 * Converts stuff to dashed.
+	 *
+	 * @param  {[type]} str [description]
+	 * @return {[type]}     [description]
+	 */
+	exports.toDashed = function toDashed(str) {
+		return str.replace(/([A-Z])/g, function($1){return &quot;-&quot;+$1.toLowerCase();});
+	};
 });
 
     </pre>

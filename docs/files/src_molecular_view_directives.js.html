@@ -88,45 +88,42 @@
     <pre class="code prettyprint linenums">
 define(function defMolecularViewDirectiveSystem(require, exports, module) {
 
+	require(&#x27;es5-shim&#x27;);
+
 	var _ = require(&#x27;lodash&#x27;);
 
-
-
-	function handleDOMEvent(handlerName, element, event) {
-		this[handlerName].apply(this, _.toArray(arguments).slice(2));
-	}
+	/**
+	 * DOM events directives.
+	 */
+	_.assign(exports, require(&#x27;molecular/view/directives/dom-events&#x27;));
 
 	/**
-	 * &lt;div data-m-click=&quot;something&quot;&gt;&lt;/div&gt;
-	 *
+	 * [mView description]
 	 * @param  {[type]} element [description]
+	 * @param  {[type]} value   [description]
 	 * @return {[type]}         [description]
 	 */
-	exports.mClick = function clickDirective(element) {
+	exports.mView = function viewDirective(element, moduleName) {
 
-		var handlerName = element.data(&#x27;mClick&#x27;);
-		element.on(&#x27;click&#x27;, _.partial(handleDOMEvent, handlerName, element).bind(this));
-	};
+		var viewModule = require([moduleName], function (viewModule) {
 
+			// instantiate
+			var viewInstance = viewModule({ element: element });
 
-	exports.mMouseOver = function mouseOverDirective(element) {
-		var handlerName = element.data(&#x27;mMouseOver&#x27;);
-
-		element.on(&#x27;mouseover&#x27;, _.partial(handleDOMEvent, handlerName, element).bind(this));
-	};
-
-
-
-	exports.mView = function viewDirective(element) {
-
-		var viewModule = require([element.data(&#x27;mView&#x27;)], function (mod) {
-
-			this.addChildren(mod, {
-				element: element,
-			});
+			// add viewInstance
+			this.addChildren(viewInstance);
 
 		}.bind(this));
+	};
 
+
+	exports.mClickCommand = function mClickCommand(element, commandData) {
+
+		commandData = _.isString(commandData) ? JSON.parse(commandData) : commandData;
+
+		element.on(&#x27;click&#x27;, function (e) {
+			this.issueCommand(commandData);
+		}.bind(this));
 	};
 
 

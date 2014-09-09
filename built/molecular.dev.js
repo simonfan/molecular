@@ -84,109 +84,195 @@ define('molecular/node/event-system',['require','exports','module','es5-shim'],f
 	};
 });
 
-define('molecular/node/request-system',['require','exports','module','q'],function defMolecularViewRequestChain(require, exports, module) {
+define('molecular/node/command-system',['require','exports','module','es5-shim','q'],function defMolecularViewRequestChain(require, exports, module) {
+
+	require('es5-shim');
 
 	var q = require('q');
 
+	/**
+	 * Decorator pattern for building a command object.
+	 *
+	 * @param  {[type]} options        [description]
+	 * @param  {[type]} propagation [description]
+	 * @return {[type]}             [description]
+	 */
+	function _buildCommandObject(options, propagation) {
+
+		// build a command object
+		var command = q.defer();
+
+		// propagation defaults to 'bubble'
+		propagation = propagation || options.propagation || 'bubble';
+
+		// set properties
+		command.issuer      = options.issuer || this;
+		command.name        = options.name || options.command;
+		command.options     = options;
+		command.data        = options.data;
+		command.propagation = propagation;
+
+
+		// stop propagation
+		command.propagate = true;
+		command.stopPropagation = function () {
+			this.propagate = false;
+		};
+
+
+		return command;
+	}
+
+	function commandResolverError(commandName) {
+		var err = new Error([
+			'[molecular/node/command-system]',
+			'No resolver was found for "' + commandName + '"',
+			'command.'
+		].join(' '));
+
+		return err;
+	}
 
 	/**
-	 * Builds a request object to be passed on.
-	 *
-	 * @param  {[type]} name    [description]
-	 * @param  {[type]} data [description]
+	 * Bubbles a command up the chain.
+	 * @param  {[type]} command [description]
 	 * @return {[type]}         [description]
 	 */
-	exports.buildRequestObject = function buildRequestObject(name, data) {
+	function _bubbleCommand(command) {
 
-		var request = q.defer();
+		var parent = this.getParent();
 
-		// set data
-		request.data = data;
+		if (parent) {
 
-		return request;
-	};
+			// let parent handle the command.
+			parent.handleCommand(command);
 
-	/**
-	 * Initialize a request.
-	 *
-	 * @param  {[type]} name    [description]
-	 * @param  {[type]} data [description]
-	 * @return {[type]}         [description]
-	 */
-	exports.issueRequest = function issueRequest(name, data) {
-
-		// build a request object
-		var request = this.buildRequestObject(name, data);
-
-		// process the request.
-		this.processRequest(name, request);
-
-
-		return request.promise;
-	};
-
-
-	/**
-	 * Attempts to handle a request.
-	 * Checks if the current object can handle the request by
-	 * calling `canHandleRequest`.
-	 *
-	 * If is able of resolving the request,
-	 *
-	 * @param  {[type]} name    [description]
-	 * @param  {[type]} request [description]
-	 * @return {[type]}         [description]
-	 */
-	exports.processRequest = function processRequest(name, request) {
-
-		if (this.canHandleRequest(name, request)) {
-			// can handle
-			this.handleRequest(name, request);
-		} else {
-			// cannot handle
-
-			// attempt to retrieve the parent object and let
-			// the parent process the request.
-			var parent = this.getParent();
-			if (parent) {
-				// let parent processRequest
-				parent.processRequest(name, request);
-
-			} else {
-				// reject, as no resolver was found
-				// and this object is root.
-				request.reject(new Error('No resolver for ' + name + ' was found.'));
+			if (command.promise.isPending()) {
+				// continue bubbling
+				_bubbleCommand.call(parent, command);
 			}
+
+		}
+	}
+
+	/**
+	 * Captures a command.
+	 * @param  {[type]} command [description]
+	 * @return {[type]}         [description]
+	 */
+	function _captureCommand(command) {
+
+		var children = this.children,
+			i = 0, length = children.length;
+
+
+		while (command.promise.isPending() && i < length) {
+
+			var child = children[i];
+
+			child.handleCommand(command);
+
+			if (command.promise.isPending()) {
+				_captureCommand.call(child, command);
+			}
+
+			++i;
+		}
+	}
+
+	/**
+	 * Initialize a command.
+	 *
+	 * @param  {[type]} name    [description]
+	 * @param  {[type]} data [description]
+	 * @return {[type]}         [description]
+	 */
+	exports.issueCommand = function issueCommand(data, propagation) {
+
+		// build a command object
+		var command = q.defer();
+
+
+		// propagation defaults to 'bubble'
+		propagation = propagation || data.propagation || 'bubble';
+
+		// set properties
+		command.issuer      = data.issuer || this;
+		command.name        = data.name || data.command;
+		command.data        = data;
+		command.propagation = propagation;
+
+
+		// first attempt to handle command on the current instance
+		this.handleCommand(command);
+
+		// if the command promise has not been solved, propagate
+		if (command.promise.isPending()) {
+
+			if (!propagation || propagation === 'bubble') {
+				_bubbleCommand.call(this, command);
+			} else if (propagation === 'capture') {
+				_captureCommand.call(this, command);
+			} else {
+				// propagation === 'both'
+
+				// first bubble
+				_bubbleCommand.call(this, command);
+
+				if (command.promise.isPending()) {
+					// then capture ONLY if comamnd is not resolved.
+					_captureCommand.call(this, command);
+				}
+			}
+
+
+			/////////////////////
+			// CHANLLENGING //
+			/////////////////////
+			// if after all propagation, the command is still
+			// pending, handle the pending command.
+			// if (command.promise.isPending()) {
+
+			// 	this.handlePendingCommand(command);
+			// }
+
+		}
+
+		command.promise.fail(this.handleCommandFailure.bind(this));
+
+
+
+		// return the promise.
+		return command.promise;
+	};
+
+	/**
+	 * Command handling.
+	 *
+	 * a given command.
+	 */
+	exports.handleCommand = function handleCommand(command) {
+
+		var data   = command.data,
+			name = data.name;
+
+		if (this[name]) {
+			this[name](command);
 		}
 	};
 
-	/**
-	 * Request handling.
-	 *
-	 * This method is called once the `canHandleRequest` responds true for
-	 * a given request.
-	 */
-	exports.handleRequest = function handleRequest(name, request) {
+	exports.handlePendingCommand = function handlePendingCommand(command) {
+		// reject, as no resolver was found
+		// and this object is root.
+	//	console.warn(commandResolverError(command.name));
 
-		var res = this[name](request.data);
-
-
-		request.resolve(res);
+		// solve silently
+		command.resolve();
 	};
 
-	/**
-	 * Synchronous.
-	 *
-	 * Verifies if the current object is capable of handling a given request.
-	 *
-	 * @param  {[type]} name    [description]
-	 * @param  {[type]} request [description]
-	 * @return {[type]}         [description]
-	 */
-	exports.canHandleRequest = function canHandleRequest(name, request) {
-		return _.isFunction(this[name]);
+	exports.handleCommandFailure = function handleCommandFailure(e) {
+		throw(e);
 	};
-
 });
 
 /**
@@ -194,7 +280,7 @@ define('molecular/node/request-system',['require','exports','module','q'],functi
  * and is capable of operatijng as a link in a chain of responsibility.
  */
 
-define('molecular/node',['require','exports','module','subject','molecular/auxiliary','molecular/node/event-system','molecular/node/request-system'],function defMolecularViewRequestChain(require, exports, module) {
+define('molecular/node',['require','exports','module','subject','molecular/auxiliary','molecular/node/event-system','molecular/node/command-system'],function defMolecularViewRequestChain(require, exports, module) {
 
 	// load base molecular factory.
 	var factory = require('subject');
@@ -209,7 +295,6 @@ define('molecular/node',['require','exports','module','subject','molecular/auxil
 			options = options || {};
 
 			aux.transfer(['parent'], options, this);
-
 
 			/**
 			 * Array on which children nodes will be stored.
@@ -241,14 +326,16 @@ define('molecular/node',['require','exports','module','subject','molecular/auxil
 		 */
 		addChildren: function addChildren(children) {
 
-			// make sure the children is an array.
-			children = Array.isArray(children) ? children : [children];
+			if (Array.isArray(children)) {
+				children.forEach(function (child) {
+					child.setParent(this);
 
-			children.forEach(function (child) {
-				child.setParent(this);
-
-				this.children.push(child);
-			}.bind(this));
+					this.children.push(child);
+				}.bind(this));
+			} else {
+				children.setParent(this);
+				this.children.push(children);
+			}
 
 			return this;
 		},
@@ -256,7 +343,7 @@ define('molecular/node',['require','exports','module','subject','molecular/auxil
 
 	molecularNode
 		.assignProto(require('molecular/node/event-system'))
-		.assignProto(require('molecular/node/request-system'));
+		.assignProto(require('molecular/node/command-system'));
 
 	module.exports = molecularNode;
 });
@@ -302,8 +389,6 @@ define('molecular/view/directives',['require','exports','module','es5-shim','lod
 	 */
 	exports.mView = function viewDirective(element, moduleName) {
 
-		console.log(moduleName);
-
 		var viewModule = require([moduleName], function (viewModule) {
 
 			// instantiate
@@ -312,6 +397,16 @@ define('molecular/view/directives',['require','exports','module','es5-shim','lod
 			// add viewInstance
 			this.addChildren(viewInstance);
 
+		}.bind(this));
+	};
+
+
+	exports.mClickCommand = function mClickCommand(element, commandData) {
+
+		commandData = _.isString(commandData) ? JSON.parse(commandData) : commandData;
+
+		element.on('click', function (e) {
+			this.issueCommand(commandData);
 		}.bind(this));
 	};
 

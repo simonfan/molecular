@@ -93,6 +93,20 @@ define(function defMolecularView(require, exports, module) {
 	var node = require(&#x27;molecular/node&#x27;),
 		aux  = require(&#x27;molecular/auxiliary&#x27;);
 
+
+	/**
+	 * Finds all elements that should be processed by a
+	 * given directive given a rootElement and a directiveName
+	 */
+	function findDirectedElements(rootElement, directiveName) {
+		var selector = &#x27;[data-&#x27; + aux.toDashed(directiveName) + &#x27;]&#x27;;
+
+		return rootElement.find(selector);
+	}
+
+	/**
+	 * Define the viewFactory
+	 */
 	var viewFactory = node.extend({
 
 		initialize: function initializeMolecularView(options) {
@@ -117,15 +131,39 @@ define(function defMolecularView(require, exports, module) {
 			 */
 			this.element = this.DOMElementAdapter(options.element);
 
-			// render
+			////////////
+			// render //
+			////////////
 			this.render(options);
 
-			// initialize directives
-			_.each(this.directives, function (dirFn, dirName) {
+			///////////////////////////
+			// initialize directives //
+			///////////////////////////
+			_.each(this.directives, function (directiveFn, directiveName) {
+				// [1] find elements to be directed.
+				var directedElements = findDirectedElements(this.element, directiveName);
+
+				// [2] loop directed elements
+				_.each(directedElements, function (element) {
+
+					// [2.1] wrap and read data
+					element = this.DOMElementAdapter(element);
+
+					var directiveValue = element.data(directiveName);
+
+					// [2.2] invoke directiveFn
+					//       passing element and directive value.
+					directiveFn.call(this, element, directiveValue)
+
+				}.bind(this));
 
 			}.bind(this));
 		},
 
+		/**
+		 * Define directives.
+		 * @type {[type]}
+		 */
 		directives: require(&#x27;molecular/view/directives&#x27;)
 	});
 
@@ -133,14 +171,16 @@ define(function defMolecularView(require, exports, module) {
 		.assignProto(require(&#x27;molecular/view/dom-manipulation&#x27;))
 		.assignProto(require(&#x27;molecular/view/rendering&#x27;));
 
-	viewFactory.assignStatic(&#x27;extend&#x27;, function extendMolecularViewFactory() {
+	/**
+	 * Keep reference to the original extend method.
+	 * @type {[type]}
+	 */
+	var _originalExtend = viewFactory.extend;
+	// define new behaviour for extend.
+	viewFactory.assignStatic(&#x27;extend&#x27;, function extendMolecularViewFactory(extensions, options) {
+		extensions.directives = _.assign({}, this.prototype.directives, extensions.directives);
 
-		var extended = this.extend.apply(this, _.toArray(arguments));
-
-		// define directives
-		extended.directives = Object.create(extended.directives);
-
-		return extended;
+		return _originalExtend.call(this, extensions, options);
 	});
 
 	module.exports = viewFactory;

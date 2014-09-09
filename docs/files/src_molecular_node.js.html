@@ -86,6 +86,11 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
+/**
+ * Defines an object factory that is conscious of chain position
+ * and is capable of operatijng as a link in a chain of responsibility.
+ */
+
 define(function defMolecularViewRequestChain(require, exports, module) {
 
 	// load base molecular factory.
@@ -98,8 +103,9 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 	var molecularNode = factory({
 		initialize: function initializeMolecularNode(options) {
 
-			aux.transfer([&#x27;parent&#x27;], options, this);
+			options = options || {};
 
+			aux.transfer([&#x27;parent&#x27;], options, this);
 
 			/**
 			 * Array on which children nodes will be stored.
@@ -131,26 +137,16 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 		 */
 		addChildren: function addChildren(children) {
 
-			if (_.isFunction(children)) {
-				// arguments = [builder, builderArg0, builderArg1, builderArg2, ...]
-				var builder     = children,
-					builderArgs = _.toArray(arguments).slice(1);
+			if (Array.isArray(children)) {
+				children.forEach(function (child) {
+					child.setParent(this);
 
-				var child = builder.apply(null, builderArgs);
-
-				// reset children
-				children = [child];
+					this.children.push(child);
+				}.bind(this));
+			} else {
+				children.setParent(this);
+				this.children.push(children);
 			}
-
-
-			// make sure the children is an array.
-			children = Array.isArray(children) ? children : [children];
-
-			children.forEach(function (child) {
-				child.setParent(this);
-
-				this.children.push(child);
-			}.bind(this));
 
 			return this;
 		},
@@ -158,8 +154,9 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 
 	molecularNode
 		.assignProto(require(&#x27;molecular/node/event-system&#x27;))
-		.assignProto(request(&#x27;molecular/node/request-system&#x27;));
+		.assignProto(require(&#x27;molecular/node/command-system&#x27;));
 
+	module.exports = molecularNode;
 });
 
     </pre>

@@ -17,8 +17,6 @@ define(function defMolecularViewDirectiveSystem(require, exports, module) {
 	 */
 	exports.mView = function viewDirective(element, moduleName) {
 
-		console.log(moduleName);
-
 		var viewModule = require([moduleName], function (viewModule) {
 
 			// instantiate
@@ -27,6 +25,16 @@ define(function defMolecularViewDirectiveSystem(require, exports, module) {
 			// add viewInstance
 			this.addChildren(viewInstance);
 
+		}.bind(this));
+	};
+
+
+	exports.mClickCommand = function mClickCommand(element, commandData) {
+
+		commandData = _.isString(commandData) ? JSON.parse(commandData) : commandData;
+
+		element.on('click', function (e) {
+			this.issueCommand(commandData);
 		}.bind(this));
 	};
 

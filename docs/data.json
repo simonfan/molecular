@@ -4,8 +4,15 @@
         "version": "0.0.0"
     },
     "files": {
-        "src/molecular/node/request-system.js": {
-            "name": "src/molecular/node/request-system.js",
+        "src/molecular/node/command-system.js": {
+            "name": "src/molecular/node/command-system.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/molecular/view/directives/dom-events.js": {
+            "name": "src/molecular/view/directives/dom-events.js",
             "modules": {},
             "classes": {},
             "fors": {},
@@ -27,6 +34,13 @@
         },
         "src/molecular/view/rendering.js": {
             "name": "src/molecular/view/rendering.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/molecular/auxiliary.js": {
+            "name": "src/molecular/auxiliary.js",
             "modules": {},
             "classes": {},
             "fors": {},
@@ -72,39 +86,17 @@
     "classes": {},
     "classitems": [
         {
-            "file": "src/molecular/node/request-system.js",
-            "line": 6,
-            "description": "Builds a request object to be passed on.",
+            "file": "src/molecular/node/command-system.js",
+            "line": 7,
+            "description": "Decorator pattern for building a command object.",
             "params": [
-                {
-                    "name": "name",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
                 {
                     "name": "options",
                     "description": "[description]",
                     "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/request-system.js",
-            "line": 23,
-            "description": "Initialize a request.",
-            "params": [
-                {
-                    "name": "name",
-                    "description": "[description]",
-                    "type": "[type]"
                 },
                 {
-                    "name": "options",
+                    "name": "propagation",
                     "description": "[description]",
                     "type": "[type]"
                 }
@@ -116,17 +108,12 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/request-system.js",
-            "line": 43,
-            "description": "Attempts to handle a request.\nChecks if the current object can handle the request by\ncalling `canHandleRequest`.\n\nIf is able of resolving the request,",
+            "file": "src/molecular/node/command-system.js",
+            "line": 50,
+            "description": "Bubbles a command up the chain.",
             "params": [
                 {
-                    "name": "name",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
-                {
-                    "name": "request",
+                    "name": "command",
                     "description": "[description]",
                     "type": "[type]"
                 }
@@ -138,15 +125,26 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/request-system.js",
-            "line": 77,
-            "description": "Request handling.\n\nThis method is called once the `canHandleRequest` responds true for\na given request.",
+            "file": "src/molecular/node/command-system.js",
+            "line": 72,
+            "description": "Captures a command.",
+            "params": [
+                {
+                    "name": "command",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
             "class": ""
         },
         {
-            "file": "src/molecular/node/request-system.js",
-            "line": 91,
-            "description": "Synchronous.\n\nVerifies if the current object is capable of handling a given request.",
+            "file": "src/molecular/node/command-system.js",
+            "line": 97,
+            "description": "Initialize a command.",
             "params": [
                 {
                     "name": "name",
@@ -154,7 +152,30 @@
                     "type": "[type]"
                 },
                 {
-                    "name": "request",
+                    "name": "data",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/command-system.js",
+            "line": 163,
+            "description": "Command handling.\n\na given command.",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view/directives/dom-events.js",
+            "line": 7,
+            "description": "<div data-m-click=\"something\"></div>",
+            "params": [
+                {
+                    "name": "element",
                     "description": "[description]",
                     "type": "[type]"
                 }
@@ -167,11 +188,22 @@
         },
         {
             "file": "src/molecular/view/directives.js",
-            "line": 11,
-            "description": "<div data-m-click=\"something\"></div>",
+            "line": 7,
+            "description": "DOM events directives.",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view/directives.js",
+            "line": 12,
+            "description": "[mView description]",
             "params": [
                 {
                     "name": "element",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "value",
                     "description": "[description]",
                     "type": "[type]"
                 }
@@ -191,35 +223,75 @@
         },
         {
             "file": "src/molecular/view/rendering.js",
-            "line": 33,
+            "line": 37,
             "description": "Template defaults to undefined.",
             "type": "{[type]}",
             "class": ""
         },
         {
             "file": "src/molecular/view/rendering.js",
-            "line": 39,
+            "line": 43,
             "description": "Should return a function.",
             "type": "{[type]}",
             "class": ""
         },
         {
+            "file": "src/molecular/auxiliary.js",
+            "line": 12,
+            "description": "Copied from Epeli's underscore.string \"camelize\"\nhttps://github.com/epeli/underscore.string/blob/master/lib/underscore.string.js",
+            "params": [
+                {
+                    "name": "str",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/auxiliary.js",
+            "line": 23,
+            "description": "Converts stuff to dashed.",
+            "params": [
+                {
+                    "name": "str",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
             "file": "src/molecular/node.js",
-            "line": 16,
+            "line": 1,
+            "description": "Defines an object factory that is conscious of chain position\nand is capable of operatijng as a link in a chain of responsibility.",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node.js",
+            "line": 22,
             "description": "Array on which children nodes will be stored.",
             "type": "{Array}",
             "class": ""
         },
         {
             "file": "src/molecular/node.js",
-            "line": 23,
+            "line": 29,
             "description": "Hash on which event handlers will be set.",
             "type": "{Object}",
             "class": ""
         },
         {
             "file": "src/molecular/node.js",
-            "line": 40,
+            "line": 46,
             "description": "Puts children objects into the node.",
             "params": [
                 {
@@ -232,42 +304,76 @@
         },
         {
             "file": "src/molecular/view.js",
-            "line": 14,
+            "line": 9,
+            "description": "Finds all elements that should be processed by a\ngiven directive given a rootElement and a directiveName",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view.js",
+            "line": 19,
+            "description": "Define the viewFactory",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view.js",
+            "line": 28,
             "description": "Pick some options.",
             "class": ""
         },
         {
             "file": "src/molecular/view.js",
-            "line": 25,
+            "line": 39,
             "description": "The adapted DOM element.",
+            "type": "{[type]}",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view.js",
+            "line": 75,
+            "description": "Define directives.",
+            "type": "{[type]}",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view.js",
+            "line": 86,
+            "description": "Keep reference to the original extend method.",
             "type": "{[type]}",
             "class": ""
         }
     ],
     "warnings": [
         {
-            "message": "Missing item type\nBuilds a request object to be passed on.",
-            "line": " src/molecular/node/request-system.js:6"
+            "message": "Missing item type\nDecorator pattern for building a command object.",
+            "line": " src/molecular/node/command-system.js:7"
         },
         {
-            "message": "Missing item type\nInitialize a request.",
-            "line": " src/molecular/node/request-system.js:23"
+            "message": "Missing item type\nBubbles a command up the chain.",
+            "line": " src/molecular/node/command-system.js:50"
         },
         {
-            "message": "Missing item type\nAttempts to handle a request.\nChecks if the current object can handle the request by\ncalling `canHandleRequest`.\n\nIf is able of resolving the request,",
-            "line": " src/molecular/node/request-system.js:43"
+            "message": "Missing item type\nCaptures a command.",
+            "line": " src/molecular/node/command-system.js:72"
         },
         {
-            "message": "Missing item type\nRequest handling.\n\nThis method is called once the `canHandleRequest` responds true for\na given request.",
-            "line": " src/molecular/node/request-system.js:77"
+            "message": "Missing item type\nInitialize a command.",
+            "line": " src/molecular/node/command-system.js:97"
         },
         {
-            "message": "Missing item type\nSynchronous.\n\nVerifies if the current object is capable of handling a given request.",
-            "line": " src/molecular/node/request-system.js:91"
+            "message": "Missing item type\nCommand handling.\n\na given command.",
+            "line": " src/molecular/node/command-system.js:163"
         },
         {
             "message": "Missing item type\n<div data-m-click=\"something\"></div>",
-            "line": " src/molecular/view/directives.js:11"
+            "line": " src/molecular/view/directives/dom-events.js:7"
+        },
+        {
+            "message": "Missing item type\nDOM events directives.",
+            "line": " src/molecular/view/directives.js:7"
+        },
+        {
+            "message": "Missing item type\n[mView description]",
+            "line": " src/molecular/view/directives.js:12"
         },
         {
             "message": "Missing item type\nThe",
@@ -275,31 +381,59 @@
         },
         {
             "message": "Missing item type\nTemplate defaults to undefined.",
-            "line": " src/molecular/view/rendering.js:33"
+            "line": " src/molecular/view/rendering.js:37"
         },
         {
             "message": "Missing item type\nShould return a function.",
-            "line": " src/molecular/view/rendering.js:39"
+            "line": " src/molecular/view/rendering.js:43"
+        },
+        {
+            "message": "Missing item type\nCopied from Epeli's underscore.string \"camelize\"\nhttps://github.com/epeli/underscore.string/blob/master/lib/underscore.string.js",
+            "line": " src/molecular/auxiliary.js:12"
+        },
+        {
+            "message": "Missing item type\nConverts stuff to dashed.",
+            "line": " src/molecular/auxiliary.js:23"
+        },
+        {
+            "message": "Missing item type\nDefines an object factory that is conscious of chain position\nand is capable of operatijng as a link in a chain of responsibility.",
+            "line": " src/molecular/node.js:1"
         },
         {
             "message": "Missing item type\nArray on which children nodes will be stored.",
-            "line": " src/molecular/node.js:16"
+            "line": " src/molecular/node.js:22"
         },
         {
             "message": "Missing item type\nHash on which event handlers will be set.",
-            "line": " src/molecular/node.js:23"
+            "line": " src/molecular/node.js:29"
         },
         {
             "message": "Missing item type\nPuts children objects into the node.",
-            "line": " src/molecular/node.js:40"
+            "line": " src/molecular/node.js:46"
+        },
+        {
+            "message": "Missing item type\nFinds all elements that should be processed by a\ngiven directive given a rootElement and a directiveName",
+            "line": " src/molecular/view.js:9"
+        },
+        {
+            "message": "Missing item type\nDefine the viewFactory",
+            "line": " src/molecular/view.js:19"
         },
         {
             "message": "Missing item type\nPick some options.",
-            "line": " src/molecular/view.js:14"
+            "line": " src/molecular/view.js:28"
         },
         {
             "message": "Missing item type\nThe adapted DOM element.",
-            "line": " src/molecular/view.js:25"
+            "line": " src/molecular/view.js:39"
+        },
+        {
+            "message": "Missing item type\nDefine directives.",
+            "line": " src/molecular/view.js:75"
+        },
+        {
+            "message": "Missing item type\nKeep reference to the original extend method.",
+            "line": " src/molecular/view.js:86"
         }
     ]
 }

@@ -8,20 +8,158 @@
 
 	<title>main</title>
 
+	<script id="app-template" type="text/html">
+		APP
+		<button data-m-click="visualize">OPEN</button>
+
+		<div data-m-view="display-view"></div>
+
+
+		<div data-m-view="frame-view"></div>
+		<div data-m-view="frame-view"></div>
+		<div data-m-view="frame-view"></div>
+
+	</script>
+
+	<script id="frame-template" type="text/html">
+		FRAME
+		<div data-m-view="display-view">
+
+		</div>
+	</script>
+
+	<script id="display-template" type="text/html">
+		<div>
+			DISPLAY
+			<button data-m-click='nav'>CLOSE</button>
+		</div>
+	</script>
+
 	<script type="text/javascript" src="../bower_components/requirejs/require.js"></script>
 	<script type="text/javascript">
 
 		// load amdconfig manually
 		require(['../amdconfig'], function(undef) {
 			// load demo
-			require(['../demo/main'], function() {
+			require(['molecular/view', 'jquery', 'q'], function(molecularView, $, q) {
 
-				console.log('main demo successfully loaded and ran.');
+				var appView = molecularView.extend({
+					template: $('#app-template').html(),
 
+
+					visualize: function visualize(e) {
+						this.issueCommand('visualize', {
+								name: 'Simon',
+								propagation: 'capture'
+							})
+							.done();
+
+					},
+
+					navigate: function navigate(data) {
+
+						this.element.css({ backgroundColor: 'yellow' });
+						alert('navigate at appView level to ' + data.to);
+						this.element.css({ backgroundColor: 'transparent' });
+						// command.resolve('appView received');
+						//
+
+						return q.delay('appView response', 600);
+					},
+				});
+
+
+				/**
+				 * Controls multiple displays and coordinates animations
+				 * that demand more than one display in the viewport.
+				 *
+				 * @type {[type]}
+				 */
+				var frameView = molecularView.extend({
+					template: $('#frame-template').html(),
+
+
+					getCommandHandler: function getCommandHandler(command, data) {
+						return this[command];
+					},
+
+					navigate: function navigate(data) {
+
+						this.element.css({ backgroundColor: 'red' });
+
+						alert('navigate at frameView level to ' + data.to);
+
+						this.element.css({ backgroundColor: 'transparent' });
+						// do not resolve the command, let it propagate
+						//
+						var defer = q.defer();
+
+
+						setTimeout(function (argument) {
+
+							defer.reject(new Error('qweqwe'));
+
+						}, 2000)
+
+						return defer.promise;
+
+					},
+				});
+
+				/**
+				 * Displays handle data display
+				 */
+				var displayView = molecularView.extend({
+					template: $('#display-template').html(),
+
+
+					nav: function nav(e) {
+						this.issueCommand('navigate', { to: 'back' })
+							.done(function (res) {
+								this.element.append(res);
+							}.bind(this));
+					},
+
+					visualize: function (data) {
+
+
+						this.element.append(data.name);
+
+
+						throw new Error('qweqwe');
+
+					},
+
+
+					// navigate: function navigate(data) {
+
+					// 	this.element.css({ backgroundColor: 'green' });
+					// 	alert('display navigate');
+					// 	this.element.css({ backgroundColor: 'transparent' });
+					// },
+				});
+
+				define('frame-view', function () { return frameView; });
+				define('display-view', function () { return displayView; });
+
+
+				appView({
+					element: $('#app')
+				});
 			});
 		});
 
 	</script>
+
+	<style type="text/css">
+		[data-m-view=frame-view] {
+			border: 1px dashed red;
+		}
+
+		[data-m-view=display-view] {
+			border: 1px dashed green;
+		}
+	</style>
 
 </head>
 
@@ -29,6 +167,16 @@
 
 	<a href="../index.html">Menu</a>
 
+	<div id="app"></div>
+
+	<!--
+	<div>
+		DISPLAY
+		<button
+			data-m-click="issueCommand({ name: navigate, to: cloose }, bubble)"
+		>CLOSE</button>
+	</div>
+	-->
 </body>
 
 </html>

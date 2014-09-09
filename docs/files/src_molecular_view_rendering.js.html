@@ -100,7 +100,7 @@ define(function defMolecularViewRendering(require, exports, module) {
 			// only render if a template is available
 
 			// parse out data from options
-			var data = this.templateDataParse(options);
+			var data = this.parseTemplateData(options);
 
 			// if template is still a string, override it
 			// with the compiled function
@@ -112,10 +112,14 @@ define(function defMolecularViewRendering(require, exports, module) {
 			html = template(data);
 
 			// insert html
-			this.html(html);
+			this.element.html(html);
 		}
 
 		return this;
+	};
+
+	exports.parseTemplateData = function parseTemplateData(d) {
+		return d;
 	};
 
 	/**

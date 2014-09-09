@@ -19,7 +19,6 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 
 			aux.transfer(['parent'], options, this);
 
-
 			/**
 			 * Array on which children nodes will be stored.
 			 * @type {Array}
@@ -50,22 +49,28 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 		 */
 		addChildren: function addChildren(children) {
 
-			// make sure the children is an array.
-			children = Array.isArray(children) ? children : [children];
+			if (Array.isArray(children)) {
+				children.forEach(function (child) {
+					child.setParent(this);
 
-			children.forEach(function (child) {
-				child.setParent(this);
-
-				this.children.push(child);
-			}.bind(this));
+					this.children.push(child);
+				}.bind(this));
+			} else {
+				children.setParent(this);
+				this.children.push(children);
+			}
 
 			return this;
+		},
+
+		getChildren: function getChildren() {
+			return this.children;
 		},
 	});
 
 	molecularNode
 		.assignProto(require('molecular/node/event-system'))
-		.assignProto(require('molecular/node/request-system'));
+		.assignProto(require('molecular/node/command-system'));
 
 	module.exports = molecularNode;
 });
