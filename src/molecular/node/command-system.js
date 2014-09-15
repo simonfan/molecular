@@ -5,8 +5,23 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 	var q = require('q');
 
 
+	function __command_respondMulti(response) {
+		this.response.push(response);
+	}
 
+	function __command_respondSingle(response) {
+		this.response = response;
+		this.finish();
+	}
 
+	function __command_stopPropagation() {
+		this.propagate = false;
+	}
+
+	function __command_finish() {
+		this.defer.resolve(this.response);
+		this.stopPropagation();
+	}
 
 	/**
 	 * Decorator pattern for building a command object.
@@ -17,199 +32,131 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 	 */
 	function _buildCommandObject(name, options) {
 
-		// build a command object
-		var command = q.defer();
+
+		var command = {};
 
 		// set properties
-		command.issuer  = this;
 		command.name    = name;
-		command.options = options;
+		command.issuer  = options.issuer;
+		command.args    = options.args;
 
-		// propagation defaults to bubble.
-		command.propagation = options.propagation || 'bubble';
+		// defer system
+		var commandDefer = q.defer();
+		command.defer   = commandDefer;
+		command.promise = commandDefer.promise;
+
+
+		// response system
+		var type = options.type || 'single';
+		if (type === 'multi') {
+			// will run untill the last handler
+			command.response = [];
+			command.respond  = __command_respondMulti;
+
+		} else if (type === 'single') {
+			// will run untill the first handler.
+			command.response = void(0);
+			command.respond  = __command_respondSingle;
+		}
+
+		// propagation flags.
+		command.propagate       = true;
+		command.stopPropagation = __command_stopPropagation;
+		command.finish          = __command_finish;
 
 		return command;
 	}
 
-	function commandResolverError(command) {
-		var err = new Error([
-			'[molecular/node/command-system]',
-			'No resolver was found for "' + command.name + '"',
-			'command.'
-		].join(' '));
+	function _handleCommand(handlers, command) {
 
-		return err;
-	}
-
-
-
-
-
-
-	//////////////////////
-	// BUBBLING COMMAND //
-	//////////////////////
-
-
-	/**
-	 * Bubbles a command up the chain.
-	 * @param  {[type]} command [description]
-	 * @return {[type]}         [description]
-	 */
-	function _bubbleCommand(handlerObj, command) {
-
-		var parent = handlerObj.getParent();
-
-		if (parent) {
-			// let parent handle the command.
-			_handleBubblingCommand(parent, command);
-
-		} else {
-			// no parent left, at root node
-			// throw error
-			command.reject(commandResolverError(command));
-		}
-	}
-
-	function _handleBubblingCommand(handlerObj, command) {
-
-		q.fcall(handlerObj.handleCommand.bind(handlerObj), command.name, command.options)
-			.then(function (res) {
-				command.resolve(res);
-
-				return command.promise;
-			}, function (err) {
-				// handling failed
-				_bubbleCommand(handlerObj, command);
-			});
-	}
-
-	///////////////////////
-	// CAPTURING COMMAND //
-	///////////////////////
-
-	/**
-	 * Captures a command.
-	 * @param  {[type]} command [description]
-	 * @return {[type]}         [description]
-	 */
-	function _captureCommand(possibleHandlerObjs, command) {
-
-		// [2] get first handlerObj from possibleHandlerObjs array
-		var handlerObj = possibleHandlerObjs.shift();
+		// [2] get first handlerObj from handlers array
+		var handlerObj = handlers.shift();
 
 		if (handlerObj) {
 
-			_handleCapturingCommand(handlerObj, command, possibleHandlerObjs);
+			// call the handle command on the handlerObj
+			handlerObj.handleCommand(command);
+
+			// if after the handle command
+			// mehtod has been called,
+			// the command is still set to propagate,
+			// continue hangling it.
+			if (command.propagate) {
+				_handleCommand(handlers, command);
+			}
 
 		} else {
-			// no possibleHandlerObjs left,
-			// throw error.
-			command.reject(commandResolverError(command));
+
+			// finish the command.
+			command.finish();
 		}
 	}
 
-	function _handleCapturingCommand(handlerObj, command, possibleHandlerObjs) {
-
-		// // attempt to handle the command on the current handlerObj
-		// var handler = handlerObj.getCommandHandler(command.name, command.options);
-
-		// if (handler) {
-
-		// 	q.fcall(handler.bind(handlerObj), command.options)
-		// 		.then(function (res) {
-		// 			// resolve
-		// 			command.resolve(res);
-		// 			return command.promise;
-		// 		}, function (err) {
-		// 			// try next handlerObj
-
-		// 			_captureCommand(possibleHandlerObjs, command);
-
-		// 		});
-
-		// } else {
-
-		// 	_captureCommand(possibleHandlerObjs, command);
-
-		// }
-
-
-		q.fcall(handlerObj.handleCommand.bind(handlerObj), command.name, command.options)
-			.then(function (res) {
-				// resolve
-				command.resolve(res);
-				return command.promise;
-			}, function (err) {
-				// try next handlerObj
-				_captureCommand(possibleHandlerObjs, command);
-			});
-	}
-
-
 	/**
-	 * Initialize a command.
+	 * Commands go top->down in the chain.
 	 *
 	 * @param  {[type]} name    [description]
 	 * @param  {[type]} data [description]
 	 * @return {[type]}         [description]
 	 */
-	exports.issueCommand = function issueCommand(name, options) {
+	exports.issueCommand = function issueCommand(direction, name, type) {
 
 		// build a command object
-		var command = _buildCommandObject(name, options);
+		var command = _buildCommandObject(name, {
+			name  : name,
+			type  : type,
+			issuer: this,
+			args  : _.toArray(arguments).slice(2),
+		});
 
-		if (command.propagation === 'bubble') {
-			// bubble up
-			_bubbleCommand(this, command);
 
-		} else {
-			// capture
+		// [1] find all handlers depending on direction
+		var handlers;
 
-			// [1] find all possibleHandlerObjs
-			var possibleHandlerObjs = _.clone(this.getChildren());
+		if (direction === 'descendants') {
+			// toward descendants
 
-			possibleHandlerObjs.forEach(function (p) {
-				possibleHandlerObjs = possibleHandlerObjs.concat(p.getChildren());
+			handlers = _.clone(this.getChildren());
+			handlers.forEach(function (node) {
+				handlers = handlers.concat(node.getChildren());
 			});
 
-			// capture
-			_captureCommand(possibleHandlerObjs, command);
+		} else {
+			// toward ancestors
+
+			handlers = _.clone(this.getParents());
+			handlers.forEach(function (node) {
+				handlers = handlers.concat(node.getParents());
+			});
 		}
+
+		// handle
+		_handleCommand(handlers, command);
 
 		// return the promise.
 		return command.promise;
 	};
 
 	/**
-	 * Method that attempts to handle
-	 * the command received.
+	 * Requests go down->up in the chain.
 	 *
-	 * Throw errors in order to let the chain know the command
-	 * was not successfully handled.
-	 *
-	 * @param  {[type]} name    [description]
-	 * @param  {[type]} options [description]
-	 * @return {[type]}         [description]
+	 * @param  {[type]} name [description]
+	 * @return {[type]}      [description]
 	 */
-	exports.handleCommand = function handleCommand(name, options) {
-		return this[name](options);
-	};
+	exports.issueCommandUp   = _.partial(exports.issueCommand, 'ancestors');
+	exports.issueCommandDown = _.partial(exports.issueCommand, 'descendants');
+
+
 
 	/**
-	 * Method that retrieves the command handler given the command name
-	 * and the command options.
-	 *
-	 * @param  {[type]} name    [description]
-	 * @param  {[type]} options [description]
+	 * Receives a command.
+	 * @param  {[type]} command [description]
 	 * @return {[type]}         [description]
 	 */
-	exports.getCommandHandler = function getCommandHandler(name, options) {
-
-		var handlerFn = this[name];
-
-		if (_.isFunction(handlerFn)) {
-			return handlerFn;
+	exports.handleCommand = function handleCommand(command) {
+		if (_.isFunction(this[command.name]) {
+			var res = this[command.name].apply(this, command.args);
+			command.respond(res);
 		}
 	};
 });

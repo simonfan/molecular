@@ -5,19 +5,43 @@ define(function defMolecularItemModel(require, exports, module) {
 		objectQuery = require('object-query');
 
 	var basicSchemas = {
-		'String': function (v) {},
+		'string': function (v) {},
+		'virtual': function (arg, arg2) {
+
+		},
 	}
 
 
 	var molecularItem = subject({
 
 
-		initialize: function initializeMolecularItem(data, options) {
+		initialize: function initializeMolecularItem(data) {
 
 			_.assign(this, data);
 		},
 
-		schema: {},
+		/**
+		 * Whether to throw errors on schema problems.
+		 * @type {Boolean}
+		 */
+		enforceSchema: false,
+
+		schema: {
+			id: 'string',
+			name: 'string',
+			lastname: 'string',
+
+
+			fullname: {
+				get: function getFullname() {
+
+				},
+
+				set: function setFullname() {
+
+				}
+			}
+		},
 
 		is: function is(criteria) {
 

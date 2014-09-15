@@ -3,7 +3,7 @@
  * and is capable of operatijng as a link in a chain of responsibility.
  */
 
-define(function defMolecularViewRequestChain(require, exports, module) {
+define(function defMolecularNode(require, exports, module) {
 
 	// load base molecular factory.
 	var factory = require('subject');
@@ -17,14 +17,8 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 
 			options = options || {};
 
-			aux.transfer(['parent'], options, this);
-
-			/**
-			 * Array on which children nodes will be stored.
-			 * @type {Array}
-			 */
-			this.children = [];
-
+			this.children = options.children || [];
+			this.parents  = options.parents  || [];
 
 			/**
 			 * Hash on which event handlers will be set.
@@ -33,38 +27,55 @@ define(function defMolecularViewRequestChain(require, exports, module) {
 			this._eventHandlers = {};
 		},
 
-		getParent: function getParent() {
-			return this.parent;
+		getParent: function getParent(index) {
+
+			if (arguments.length === 0) {
+				return this.parents;
+			} else {
+				return this.parent[index];
+			}
 		},
 
-		setParent: function setParent(parent) {
-			this.parent = parent;
+		addParent: function addParent(parent) {
+			if (Array.isArray(parent)) {
+				parent.forEach(function (parent) {
+					parent.addChild(this);
 
-			return this;
-		},
-
-		/**
-		 * Puts children objects into the node.
-		 * @param {[type]} children [description]
-		 */
-		addChildren: function addChildren(children) {
-
-			if (Array.isArray(children)) {
-				children.forEach(function (child) {
-					child.setParent(this);
-
-					this.children.push(child);
+					this.parent.push(parent);
 				}.bind(this));
 			} else {
-				children.setParent(this);
-				this.children.push(children);
+				parent.addChild(this);
+				this.parent.push(parent);
 			}
 
 			return this;
 		},
 
-		getChildren: function getChildren() {
-			return this.children;
+		getChild: function getChild(index) {
+
+			if (arguments.length === 0) {
+				return this.children;
+			} else {
+				return this.children[index];
+			}
+
+		},
+
+		addChild: function addChild(child) {
+
+
+			if (Array.isArray(child)) {
+				child.forEach(function (child) {
+					child.addParent(this);
+
+					this.child.push(child);
+				}.bind(this));
+			} else {
+				child.addParent(this);
+				this.child.push(child);
+			}
+
+			return this;
 		},
 	});
 
