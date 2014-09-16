@@ -18,7 +18,15 @@ define(function defMolecularNode(require, exports, module) {
 			options = options || {};
 
 			this.children = options.children || [];
+			if (options.child) {
+				this.children.push(options.child)
+			}
+
+
 			this.parents  = options.parents  || [];
+			if (options.parent) {
+				this.parents.push(options.parent);
+			}
 
 			/**
 			 * Hash on which event handlers will be set.
@@ -51,6 +59,12 @@ define(function defMolecularNode(require, exports, module) {
 			return this;
 		},
 
+		removeParent: function removeParent(parent) {
+			if (Array.isArray(parent)) {
+
+			}
+		},
+
 		getChild: function getChild(index) {
 
 			if (arguments.length === 0) {
@@ -81,7 +95,7 @@ define(function defMolecularNode(require, exports, module) {
 
 	molecularNode
 		.assignProto(require('molecular/node/event-system'))
-		.assignProto(require('molecular/node/command-system'));
+		.assignProto(require('molecular/node/command-channel'));
 
 	module.exports = molecularNode;
 });

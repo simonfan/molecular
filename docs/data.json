@@ -11,15 +11,15 @@
             "fors": {},
             "namespaces": {}
         },
-        "src/molecular/node/command-system.js": {
-            "name": "src/molecular/node/command-system.js",
+        "src/molecular/node/channel.js": {
+            "name": "src/molecular/node/channel.js",
             "modules": {},
             "classes": {},
             "fors": {},
             "namespaces": {}
         },
-        "src/molecular/node/fn-exec.js": {
-            "name": "src/molecular/node/fn-exec.js",
+        "src/molecular/node/command.js": {
+            "name": "src/molecular/node/command.js",
             "modules": {},
             "classes": {},
             "fors": {},
@@ -107,17 +107,24 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/command-system.js",
-            "line": 11,
-            "description": "Decorator pattern for building a command object.",
+            "file": "src/molecular/node/channel.js",
+            "line": 5,
+            "description": "Load command builders.",
+            "type": "{[type]}",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/channel.js",
+            "line": 34,
+            "description": "Channels a command through an array of nodes",
             "params": [
                 {
-                    "name": "options",
+                    "name": "nodes",
                     "description": "[description]",
                     "type": "[type]"
                 },
                 {
-                    "name": "propagation",
+                    "name": "command",
                     "description": "[description]",
                     "type": "[type]"
                 }
@@ -129,9 +136,36 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/command-system.js",
-            "line": 54,
-            "description": "Bubbles a command up the chain.",
+            "file": "src/molecular/node/channel.js",
+            "line": 67,
+            "description": "Issue command up the chain.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/channel.js",
+            "line": 89,
+            "description": "Issues command down the chain.",
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/channel.js",
+            "line": 130,
+            "description": "Receives a command.",
             "params": [
                 {
                     "name": "command",
@@ -146,12 +180,22 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/command-system.js",
-            "line": 91,
-            "description": "Captures a command.",
+            "file": "src/molecular/node/command.js",
+            "line": 18,
+            "description": "Set propagate flag to false.",
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/command.js",
+            "line": 26,
+            "description": "Set the response property then\nstop propagation.",
             "params": [
                 {
-                    "name": "command",
+                    "name": "value",
                     "description": "[description]",
                     "type": "[type]"
                 }
@@ -163,21 +207,16 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/command-system.js",
-            "line": 150,
-            "description": "Initialize a command.",
-            "params": [
-                {
-                    "name": "name",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
-                {
-                    "name": "data",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
+            "file": "src/molecular/node/command.js",
+            "line": 48,
+            "description": "Response should be an array.",
+            "type": "{Array}",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/command.js",
+            "line": 55,
+            "description": "Set propagate flag to false.",
             "return": {
                 "description": "[description]",
                 "type": "[type]"
@@ -185,161 +224,12 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/command-system.js",
-            "line": 184,
-            "description": "Method that attempts to handle\nthe command received.\n\nThrow errors in order to let the chain know the command\nwas not successfully handled.",
+            "file": "src/molecular/node/command.js",
+            "line": 63,
+            "description": "Set the response property then\nstop propagation.",
             "params": [
                 {
-                    "name": "name",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
-                {
-                    "name": "options",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/command-system.js",
-            "line": 199,
-            "description": "Method that retrieves the command handler given the command name\nand the command options.",
-            "params": [
-                {
-                    "name": "name",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
-                {
-                    "name": "options",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/fn-exec.js",
-            "line": 11,
-            "description": "Decorator pattern for building a command object.",
-            "params": [
-                {
-                    "name": "options",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
-                {
-                    "name": "propagation",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/fn-exec.js",
-            "line": 54,
-            "description": "Bubbles a command up the chain.",
-            "params": [
-                {
-                    "name": "command",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/fn-exec.js",
-            "line": 91,
-            "description": "Captures a command.",
-            "params": [
-                {
-                    "name": "command",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/fn-exec.js",
-            "line": 150,
-            "description": "Initialize a command.",
-            "params": [
-                {
-                    "name": "name",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
-                {
-                    "name": "data",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/fn-exec.js",
-            "line": 184,
-            "description": "Method that attempts to handle\nthe command received.\n\nThrow errors in order to let the chain know the command\nwas not successfully handled.",
-            "params": [
-                {
-                    "name": "name",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
-                {
-                    "name": "options",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/fn-exec.js",
-            "line": 199,
-            "description": "Method that retrieves the command handler given the command name\nand the command options.",
-            "params": [
-                {
-                    "name": "name",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
-                {
-                    "name": "options",
+                    "name": "value",
                     "description": "[description]",
                     "type": "[type]"
                 }
@@ -458,29 +348,9 @@
         },
         {
             "file": "src/molecular/node.js",
-            "line": 22,
-            "description": "Array on which children nodes will be stored.",
-            "type": "{Array}",
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node.js",
-            "line": 29,
+            "line": 23,
             "description": "Hash on which event handlers will be set.",
             "type": "{Object}",
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node.js",
-            "line": 46,
-            "description": "Puts children objects into the node.",
-            "params": [
-                {
-                    "name": "children",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
             "class": ""
         },
         {
@@ -529,52 +399,44 @@
             "line": " src/molecular/data/model/item.js:23"
         },
         {
-            "message": "Missing item type\nDecorator pattern for building a command object.",
-            "line": " src/molecular/node/command-system.js:11"
+            "message": "Missing item type\nLoad command builders.",
+            "line": " src/molecular/node/channel.js:5"
         },
         {
-            "message": "Missing item type\nBubbles a command up the chain.",
-            "line": " src/molecular/node/command-system.js:54"
+            "message": "Missing item type\nChannels a command through an array of nodes",
+            "line": " src/molecular/node/channel.js:34"
         },
         {
-            "message": "Missing item type\nCaptures a command.",
-            "line": " src/molecular/node/command-system.js:91"
+            "message": "Missing item type\nIssue command up the chain.",
+            "line": " src/molecular/node/channel.js:67"
         },
         {
-            "message": "Missing item type\nInitialize a command.",
-            "line": " src/molecular/node/command-system.js:150"
+            "message": "Missing item type\nIssues command down the chain.",
+            "line": " src/molecular/node/channel.js:89"
         },
         {
-            "message": "Missing item type\nMethod that attempts to handle\nthe command received.\n\nThrow errors in order to let the chain know the command\nwas not successfully handled.",
-            "line": " src/molecular/node/command-system.js:184"
+            "message": "Missing item type\nReceives a command.",
+            "line": " src/molecular/node/channel.js:130"
         },
         {
-            "message": "Missing item type\nMethod that retrieves the command handler given the command name\nand the command options.",
-            "line": " src/molecular/node/command-system.js:199"
+            "message": "Missing item type\nSet propagate flag to false.",
+            "line": " src/molecular/node/command.js:18"
         },
         {
-            "message": "Missing item type\nDecorator pattern for building a command object.",
-            "line": " src/molecular/node/fn-exec.js:11"
+            "message": "Missing item type\nSet the response property then\nstop propagation.",
+            "line": " src/molecular/node/command.js:26"
         },
         {
-            "message": "Missing item type\nBubbles a command up the chain.",
-            "line": " src/molecular/node/fn-exec.js:54"
+            "message": "Missing item type\nResponse should be an array.",
+            "line": " src/molecular/node/command.js:48"
         },
         {
-            "message": "Missing item type\nCaptures a command.",
-            "line": " src/molecular/node/fn-exec.js:91"
+            "message": "Missing item type\nSet propagate flag to false.",
+            "line": " src/molecular/node/command.js:55"
         },
         {
-            "message": "Missing item type\nInitialize a command.",
-            "line": " src/molecular/node/fn-exec.js:150"
-        },
-        {
-            "message": "Missing item type\nMethod that attempts to handle\nthe command received.\n\nThrow errors in order to let the chain know the command\nwas not successfully handled.",
-            "line": " src/molecular/node/fn-exec.js:184"
-        },
-        {
-            "message": "Missing item type\nMethod that retrieves the command handler given the command name\nand the command options.",
-            "line": " src/molecular/node/fn-exec.js:199"
+            "message": "Missing item type\nSet the response property then\nstop propagation.",
+            "line": " src/molecular/node/command.js:63"
         },
         {
             "message": "Missing item type\n<div data-m-click=\"something\"></div>",
@@ -613,16 +475,8 @@
             "line": " src/molecular/node.js:1"
         },
         {
-            "message": "Missing item type\nArray on which children nodes will be stored.",
-            "line": " src/molecular/node.js:22"
-        },
-        {
             "message": "Missing item type\nHash on which event handlers will be set.",
-            "line": " src/molecular/node.js:29"
-        },
-        {
-            "message": "Missing item type\nPuts children objects into the node.",
-            "line": " src/molecular/node.js:46"
+            "line": " src/molecular/node.js:23"
         },
         {
             "message": "Missing item type\nFinds all elements that should be processed by a\ngiven directive given a rootElement and a directiveName",

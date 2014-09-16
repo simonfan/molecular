@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/molecular/node.js - molecular</title>
+    <title>src/molecular/node/channel.js - molecular</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -82,96 +82,150 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: src/molecular/node.js</h1>
+                        <h1 class="file-heading">File: src/molecular/node/channel.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
-/**
- * Defines an object factory that is conscious of chain position
- * and is capable of operatijng as a link in a chain of responsibility.
- */
+define(function defMolecularNodeChannelSystem(require, exports, module) {
 
-define(function defMolecularNode(require, exports, module) {
+	require(&#x27;es5-shim&#x27;);
 
-	// load base molecular factory.
-	var factory = require(&#x27;subject&#x27;);
-
-
-	var aux = require(&#x27;molecular/auxiliary&#x27;);
+	/**
+	 * Load command builders.
+	 * @type {[type]}
+	 */
+	var command = require(&#x27;molecular/node/command&#x27;);
 
 
-	var molecularNode = factory({
-		initialize: function initializeMolecularNode(options) {
 
-			options = options || {};
+	function _ancestors(node) {
 
-			this.children = options.children || [];
-			this.parents  = options.parents  || [];
+		// find all nodes depending on direction
+		var nodes = _.clone(node.getParent());
+		nodes.forEach(function (node) {
+			nodes = nodes.concat(node.getParent());
+		});
 
-			/**
-			 * Hash on which event handlers will be set.
-			 * @type {Object}
-			 */
-			this._eventHandlers = {};
-		},
+		return nodes;
+	}
 
-		getParent: function getParent(index) {
 
-			if (arguments.length === 0) {
-				return this.parents;
+	function _descendants(node) {
+		var nodes = _.clone(node.getChild());
+		nodes.forEach(function (node) {
+			nodes = nodes.concat(node.getChild());
+		});
+
+		return nodes;
+	}
+
+	/**
+	 * Channels a command through an array of nodes
+	 * @param  {[type]} nodes [description]
+	 * @param  {[type]} command  [description]
+	 * @return {[type]}          [description]
+	 */
+	function _channelCommand(nodes, command) {
+
+		// [2] get first node from nodes array
+		var node = nodes.shift();
+
+		if (node) {
+
+			// call the handle command on the node
+			node.handleCommand(command);
+
+			// if after the handle command
+			// mehtod has been called,
+			// the command is still set to propagate,
+			// continue hangling it.
+			if (command.propagate) {
+				return _channelCommand(nodes, command);
 			} else {
-				return this.parent[index];
-			}
-		},
-
-		addParent: function addParent(parent) {
-			if (Array.isArray(parent)) {
-				parent.forEach(function (parent) {
-					parent.addChild(this);
-
-					this.parent.push(parent);
-				}.bind(this));
-			} else {
-				parent.addChild(this);
-				this.parent.push(parent);
-			}
-
-			return this;
-		},
-
-		getChild: function getChild(index) {
-
-			if (arguments.length === 0) {
-				return this.children;
-			} else {
-				return this.children[index];
+				return command.response;
 			}
 
-		},
+		} else {
 
-		addChild: function addChild(child) {
+			// return the response
+			return command.response;
+		}
+	}
+
+	/**
+	 * Issue command up the chain.
+	 *
+	 * @param  {[type]} name [description]
+	 * @return {[type]}      [description]
+	 */
+	exports.sendCommandUp = function sendCommandUp(name) {
+
+		// build a command object
+		var cmd = command.singleResponse({
+			name  : name,
+			issuer: this,
+			args  : _.toArray(arguments).slice(1)
+		});
 
 
-			if (Array.isArray(child)) {
-				child.forEach(function (child) {
-					child.addParent(this);
 
-					this.child.push(child);
-				}.bind(this));
-			} else {
-				child.addParent(this);
-				this.child.push(child);
-			}
 
-			return this;
-		},
-	});
+		// handle and return value
+		return _channelCommand(_ancestors(this), cmd);
+	};
 
-	molecularNode
-		.assignProto(require(&#x27;molecular/node/event-system&#x27;))
-		.assignProto(require(&#x27;molecular/node/channel&#x27;));
+	/**
+	 * Issues command down the chain.
+	 *
+	 * @return {[type]} [description]
+	 */
+	exports.sendCommandDown = function sendCommandDown(name) {
 
-	module.exports = molecularNode;
+		// build a command object
+		var cmd = command.singleResponse({
+			name  : name,
+			issuer: this,
+			args  : _.toArray(arguments).slice(1)
+		});
+
+		// channel and return result
+		return _channelCommand(_descendants(this), cmd);
+	};
+
+
+	exports.broadcastCommandUp = function broadcastCommandUp(name) {
+		var cmd = command.multiResponse({
+			name: name,
+			issuer: this,
+			args: _.toArray(arguments).slice(1)
+		});
+
+		return _channelCommand(_ancestors(this), cmd);
+	};
+
+	exports.broadcastCommandDown = function broadcastCommandDown(name) {
+		var cmd = command.multiResponse({
+			name: name,
+			issuer: this,
+			args: _.toArray(arguments).slice(1)
+		});
+
+		return _channelCommand(_descendants(this), cmd);
+	};
+
+
+
+	/**
+	 * Receives a command.
+	 * @param  {[type]} command [description]
+	 * @return {[type]}         [description]
+	 */
+	exports.handleCommand = function handleCommand(command) {
+		if (_.isFunction(this[command.name])) {
+			var res = this[command.name].apply(this, command.args);
+			command.respond(res);
+		}
+	};
 });
 
     </pre>

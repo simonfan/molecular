@@ -80,42 +80,5 @@
 			rootEventControl.fired.should.eql(2);
 			rootEventControl.should.not.eql(branch3);
 		});
-
-
-		it('command system', function (testdone) {
-
-			var rootControl = {};
-
-
-			var rootMolecularNode = molecularNode.extend({
-
-				navigate: function navigate(data) {
-					rootControl = data;
-
-					return 'ok';
-				}
-			});
-
-
-			var root = rootMolecularNode(),
-				branch1 = molecularNode({ parent: root }),
-				branch2 = molecularNode({ parent: root }),
-				branch11 = molecularNode({ parent: branch1 });
-
-			branch11.issueCommand('navigate', {
-				resource: 'books',
-				query: {
-					id: 15
-				}
-			}).done(function (res) {
-
-				res.should.be.eql('ok');
-
-				testdone();
-			});
-
-
-
-		});
 	});
 });
