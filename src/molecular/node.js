@@ -23,7 +23,7 @@ define(function defMolecularNode(require, exports, module) {
 			}
 
 
-			this.parents  = options.parents  || [];
+			this.parents = options.parents || [];
 			if (options.parent) {
 				this.parents.push(options.parent);
 			}
@@ -35,65 +35,10 @@ define(function defMolecularNode(require, exports, module) {
 			this._eventHandlers = {};
 		},
 
-		getParent: function getParent(index) {
-
-			if (arguments.length === 0) {
-				return this.parents;
-			} else {
-				return this.parent[index];
-			}
-		},
-
-		addParent: function addParent(parent) {
-			if (Array.isArray(parent)) {
-				parent.forEach(function (parent) {
-					parent.addChild(this);
-
-					this.parent.push(parent);
-				}.bind(this));
-			} else {
-				parent.addChild(this);
-				this.parent.push(parent);
-			}
-
-			return this;
-		},
-
-		removeParent: function removeParent(parent) {
-			if (Array.isArray(parent)) {
-
-			}
-		},
-
-		getChild: function getChild(index) {
-
-			if (arguments.length === 0) {
-				return this.children;
-			} else {
-				return this.children[index];
-			}
-
-		},
-
-		addChild: function addChild(child) {
-
-
-			if (Array.isArray(child)) {
-				child.forEach(function (child) {
-					child.addParent(this);
-
-					this.child.push(child);
-				}.bind(this));
-			} else {
-				child.addParent(this);
-				this.child.push(child);
-			}
-
-			return this;
-		},
 	});
 
 	molecularNode
+		.assignProto(require('molecular/node/tree-system'))
 		.assignProto(require('molecular/node/event-system'))
 		.assignProto(require('molecular/node/command-channel'));
 

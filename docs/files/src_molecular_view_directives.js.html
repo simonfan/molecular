@@ -93,9 +93,12 @@ define(function defMolecularViewDirectiveSystem(require, exports, module) {
 	var _ = require(&#x27;lodash&#x27;);
 
 	/**
-	 * DOM events directives.
+	 * Hash that holds all directive processors.
+	 *
+	 * @type {Object}
 	 */
-	_.assign(exports, require(&#x27;molecular/view/directives/dom-events&#x27;));
+	var directives = {};
+
 
 	/**
 	 * [mView description]
@@ -103,7 +106,7 @@ define(function defMolecularViewDirectiveSystem(require, exports, module) {
 	 * @param  {[type]} value   [description]
 	 * @return {[type]}         [description]
 	 */
-	exports.mView = function viewDirective(element, moduleName) {
+	directives.mView = function viewDirective(element, moduleName) {
 
 		var viewModule = require([moduleName], function (viewModule) {
 
@@ -117,15 +120,59 @@ define(function defMolecularViewDirectiveSystem(require, exports, module) {
 	};
 
 
-	exports.mClickCommand = function mClickCommand(element, commandData) {
+	/**
+	 * DOM events directives.
+	 */
+	_.assign(directives, require(&#x27;molecular/view/directives/dom-events&#x27;));
 
-		commandData = _.isString(commandData) ? JSON.parse(commandData) : commandData;
 
-		element.on(&#x27;click&#x27;, function (e) {
-			this.issueCommand(commandData);
+	/**
+	 * Reference to directives
+	 * @type {[type]}
+	 */
+	exports.directives = directives;
+
+
+
+	/**
+	 * Finds all elements that should be processed by a
+	 * given directive given a rootElement and a directiveName
+	 */
+	function findDirectedElements(rootElement, directiveName) {
+		var selector = &#x27;[data-&#x27; + aux.toDashed(directiveName) + &#x27;]&#x27;;
+
+		return $(rootElement).find(selector);
+	}
+
+
+	/**
+	 * Incorporates an element to the
+	 * @param  {[type]} element [description]
+	 * @return {[type]}         [description]
+	 */
+	exports.incorporate = function incorporate(element) {
+		_.each(this.directives, function (directiveFn, directiveName) {
+			// [1] find elements to be directed.
+			var directedElements = findDirectedElements(element, directiveName);
+
+			// [2] loop directed elements
+			_.each(directedElements, function (element) {
+
+				// [2.1] wrap and read data
+				var $element = $(element);
+
+				var directiveValue = $element.data(directiveName);
+
+				// [2.2] invoke directiveFn
+				//       passing element and directive value.
+				directiveFn.call(this, element, directiveValue)
+
+			}.bind(this));
+
 		}.bind(this));
-	};
 
+		return this;
+	};
 
 });
 

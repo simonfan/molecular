@@ -27,6 +27,11 @@ define(function defMolecularViewRendering(require, exports, module) {
 			this.element.html(html);
 		}
 
+		///////////////////////////
+		// initialize directives //
+		///////////////////////////
+		this.incorporate(this.element);
+
 		return this;
 	};
 

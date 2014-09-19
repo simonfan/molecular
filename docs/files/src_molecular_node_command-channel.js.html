@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/molecular/node/channel.js - molecular</title>
+    <title>src/molecular/node/command-channel.js - molecular</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -82,7 +82,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: src/molecular/node/channel.js</h1>
+                        <h1 class="file-heading">File: src/molecular/node/command-channel.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
@@ -126,7 +126,6 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 	 * @return {[type]}          [description]
 	 */
 	function _channelCommand(nodes, command) {
-
 		// [2] get first node from nodes array
 		var node = nodes.shift();
 
@@ -167,12 +166,10 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 			args  : _.toArray(arguments).slice(1)
 		});
 
-
-
-
 		// handle and return value
 		return _channelCommand(_ancestors(this), cmd);
 	};
+	exports.sendCommand = exports.sendCommandUp;
 
 	/**
 	 * Issues command down the chain.
@@ -202,6 +199,7 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 
 		return _channelCommand(_ancestors(this), cmd);
 	};
+	exports.broadcastCommand = exports.broadcastCommandUp;
 
 	exports.broadcastCommandDown = function broadcastCommandDown(name) {
 		var cmd = command.multiResponse({

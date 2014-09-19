@@ -1,0 +1,58 @@
+<!doctype html>
+
+<html>
+
+<head>
+
+	<meta charset="utf-8">
+
+	<title>main</title>
+
+	<script type="text/javascript" src="../bower_components/requirejs/require.js"></script>
+	<script type="text/javascript">
+
+		// load amdconfig manually
+		require(['../amdconfig'], function(undef) {
+			// load demo
+			require(['demo/app', 'jquery'], function(demoApp, $) {
+
+				window.app = demoApp({
+					element: $('#app')
+				});
+
+			});
+		});
+
+	</script>
+
+	<style type="text/css">
+		[data-m-view=frame-view] {
+			border: 1px dashed red;
+		}
+
+		[data-m-view=display-view] {
+			border: 1px dashed green;
+		}
+	</style>
+
+</head>
+
+<body>
+
+	<a href="../index.html">Menu</a>
+
+	<div id="app">
+
+		APP
+		<button data-m-click="visualize">OPEN</button>
+
+		<div data-m-view="demo/display/view"></div>
+
+
+		<div data-m-view="demo/frame/view"></div>
+		<div data-m-view="demo/frame/view"></div>
+		<div data-m-view="demo/frame/view"></div>
+	</div>
+</body>
+
+</html>

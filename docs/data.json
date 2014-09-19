@@ -11,8 +11,8 @@
             "fors": {},
             "namespaces": {}
         },
-        "src/molecular/node/channel.js": {
-            "name": "src/molecular/node/channel.js",
+        "src/molecular/node/command-channel.js": {
+            "name": "src/molecular/node/command-channel.js",
             "modules": {},
             "classes": {},
             "fors": {},
@@ -107,14 +107,14 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/channel.js",
+            "file": "src/molecular/node/command-channel.js",
             "line": 5,
             "description": "Load command builders.",
             "type": "{[type]}",
             "class": ""
         },
         {
-            "file": "src/molecular/node/channel.js",
+            "file": "src/molecular/node/command-channel.js",
             "line": 34,
             "description": "Channels a command through an array of nodes",
             "params": [
@@ -136,8 +136,8 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/channel.js",
-            "line": 67,
+            "file": "src/molecular/node/command-channel.js",
+            "line": 66,
             "description": "Issue command up the chain.",
             "params": [
                 {
@@ -153,8 +153,8 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/channel.js",
-            "line": 89,
+            "file": "src/molecular/node/command-channel.js",
+            "line": 86,
             "description": "Issues command down the chain.",
             "return": {
                 "description": "[description]",
@@ -163,8 +163,8 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/channel.js",
-            "line": 130,
+            "file": "src/molecular/node/command-channel.js",
+            "line": 128,
             "description": "Receives a command.",
             "params": [
                 {
@@ -260,12 +260,13 @@
         {
             "file": "src/molecular/view/directives.js",
             "line": 7,
-            "description": "DOM events directives.",
+            "description": "Hash that holds all directive processors.",
+            "type": "{Object}",
             "class": ""
         },
         {
             "file": "src/molecular/view/directives.js",
-            "line": 12,
+            "line": 15,
             "description": "[mView description]",
             "params": [
                 {
@@ -286,6 +287,42 @@
             "class": ""
         },
         {
+            "file": "src/molecular/view/directives.js",
+            "line": 35,
+            "description": "DOM events directives.",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view/directives.js",
+            "line": 41,
+            "description": "Reference to directives",
+            "type": "{[type]}",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view/directives.js",
+            "line": 49,
+            "description": "Finds all elements that should be processed by a\ngiven directive given a rootElement and a directiveName",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/view/directives.js",
+            "line": 60,
+            "description": "Incorporates an element to the",
+            "params": [
+                {
+                    "name": "element",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
             "file": "src/molecular/view/dom-manipulation.js",
             "line": 5,
             "description": "The",
@@ -294,14 +331,14 @@
         },
         {
             "file": "src/molecular/view/rendering.js",
-            "line": 37,
+            "line": 42,
             "description": "Template defaults to undefined.",
             "type": "{[type]}",
             "class": ""
         },
         {
             "file": "src/molecular/view/rendering.js",
-            "line": 43,
+            "line": 48,
             "description": "Should return a function.",
             "type": "{[type]}",
             "class": ""
@@ -348,46 +385,33 @@
         },
         {
             "file": "src/molecular/node.js",
-            "line": 23,
+            "line": 31,
             "description": "Hash on which event handlers will be set.",
             "type": "{Object}",
             "class": ""
         },
         {
             "file": "src/molecular/view.js",
-            "line": 9,
-            "description": "Finds all elements that should be processed by a\ngiven directive given a rootElement and a directiveName",
-            "class": ""
-        },
-        {
-            "file": "src/molecular/view.js",
-            "line": 19,
+            "line": 11,
             "description": "Define the viewFactory",
             "class": ""
         },
         {
             "file": "src/molecular/view.js",
-            "line": 28,
+            "line": 20,
             "description": "Pick some options.",
             "class": ""
         },
         {
             "file": "src/molecular/view.js",
-            "line": 39,
+            "line": 28,
             "description": "The adapted DOM element.",
             "type": "{[type]}",
             "class": ""
         },
         {
             "file": "src/molecular/view.js",
-            "line": 75,
-            "description": "Define directives.",
-            "type": "{[type]}",
-            "class": ""
-        },
-        {
-            "file": "src/molecular/view.js",
-            "line": 86,
+            "line": 47,
             "description": "Keep reference to the original extend method.",
             "type": "{[type]}",
             "class": ""
@@ -400,23 +424,23 @@
         },
         {
             "message": "Missing item type\nLoad command builders.",
-            "line": " src/molecular/node/channel.js:5"
+            "line": " src/molecular/node/command-channel.js:5"
         },
         {
             "message": "Missing item type\nChannels a command through an array of nodes",
-            "line": " src/molecular/node/channel.js:34"
+            "line": " src/molecular/node/command-channel.js:34"
         },
         {
             "message": "Missing item type\nIssue command up the chain.",
-            "line": " src/molecular/node/channel.js:67"
+            "line": " src/molecular/node/command-channel.js:66"
         },
         {
             "message": "Missing item type\nIssues command down the chain.",
-            "line": " src/molecular/node/channel.js:89"
+            "line": " src/molecular/node/command-channel.js:86"
         },
         {
             "message": "Missing item type\nReceives a command.",
-            "line": " src/molecular/node/channel.js:130"
+            "line": " src/molecular/node/command-channel.js:128"
         },
         {
             "message": "Missing item type\nSet propagate flag to false.",
@@ -443,12 +467,28 @@
             "line": " src/molecular/view/directives/dom-events.js:7"
         },
         {
-            "message": "Missing item type\nDOM events directives.",
+            "message": "Missing item type\nHash that holds all directive processors.",
             "line": " src/molecular/view/directives.js:7"
         },
         {
             "message": "Missing item type\n[mView description]",
-            "line": " src/molecular/view/directives.js:12"
+            "line": " src/molecular/view/directives.js:15"
+        },
+        {
+            "message": "Missing item type\nDOM events directives.",
+            "line": " src/molecular/view/directives.js:35"
+        },
+        {
+            "message": "Missing item type\nReference to directives",
+            "line": " src/molecular/view/directives.js:41"
+        },
+        {
+            "message": "Missing item type\nFinds all elements that should be processed by a\ngiven directive given a rootElement and a directiveName",
+            "line": " src/molecular/view/directives.js:49"
+        },
+        {
+            "message": "Missing item type\nIncorporates an element to the",
+            "line": " src/molecular/view/directives.js:60"
         },
         {
             "message": "Missing item type\nThe",
@@ -456,11 +496,11 @@
         },
         {
             "message": "Missing item type\nTemplate defaults to undefined.",
-            "line": " src/molecular/view/rendering.js:37"
+            "line": " src/molecular/view/rendering.js:42"
         },
         {
             "message": "Missing item type\nShould return a function.",
-            "line": " src/molecular/view/rendering.js:43"
+            "line": " src/molecular/view/rendering.js:48"
         },
         {
             "message": "Missing item type\nCopied from Epeli's underscore.string \"camelize\"\nhttps://github.com/epeli/underscore.string/blob/master/lib/underscore.string.js",
@@ -476,31 +516,23 @@
         },
         {
             "message": "Missing item type\nHash on which event handlers will be set.",
-            "line": " src/molecular/node.js:23"
-        },
-        {
-            "message": "Missing item type\nFinds all elements that should be processed by a\ngiven directive given a rootElement and a directiveName",
-            "line": " src/molecular/view.js:9"
+            "line": " src/molecular/node.js:31"
         },
         {
             "message": "Missing item type\nDefine the viewFactory",
-            "line": " src/molecular/view.js:19"
+            "line": " src/molecular/view.js:11"
         },
         {
             "message": "Missing item type\nPick some options.",
-            "line": " src/molecular/view.js:28"
+            "line": " src/molecular/view.js:20"
         },
         {
             "message": "Missing item type\nThe adapted DOM element.",
-            "line": " src/molecular/view.js:39"
-        },
-        {
-            "message": "Missing item type\nDefine directives.",
-            "line": " src/molecular/view.js:75"
+            "line": " src/molecular/view.js:28"
         },
         {
             "message": "Missing item type\nKeep reference to the original extend method.",
-            "line": " src/molecular/view.js:86"
+            "line": " src/molecular/view.js:47"
         }
     ]
 }

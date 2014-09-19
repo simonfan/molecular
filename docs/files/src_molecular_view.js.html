@@ -88,21 +88,13 @@
     <pre class="code prettyprint linenums">
 define(function defMolecularView(require, exports, module) {
 
-	var _ = require(&#x27;lodash&#x27;);
+	var _ = require(&#x27;lodash&#x27;),
+		$ = require(&#x27;jquery&#x27;);
 
 	var node = require(&#x27;molecular/node&#x27;),
 		aux  = require(&#x27;molecular/auxiliary&#x27;);
 
 
-	/**
-	 * Finds all elements that should be processed by a
-	 * given directive given a rootElement and a directiveName
-	 */
-	function findDirectedElements(rootElement, directiveName) {
-		var selector = &#x27;[data-&#x27; + aux.toDashed(directiveName) + &#x27;]&#x27;;
-
-		return rootElement.find(selector);
-	}
 
 	/**
 	 * Define the viewFactory
@@ -118,10 +110,7 @@ define(function defMolecularView(require, exports, module) {
 			 */
 			aux.transfer([
 				&#x27;element&#x27;,
-
 				&#x27;template&#x27;,
-				&#x27;render&#x27;,
-				&#x27;compileTemplate&#x27;
 			], options, this);
 
 			/**
@@ -129,46 +118,18 @@ define(function defMolecularView(require, exports, module) {
 			 *
 			 * @type {[type]}
 			 */
-			this.element = this.DOMElementAdapter(options.element);
+			this.element = $(options.element);
 
 			////////////
 			// render //
 			////////////
 			this.render(options);
-
-			///////////////////////////
-			// initialize directives //
-			///////////////////////////
-			_.each(this.directives, function (directiveFn, directiveName) {
-				// [1] find elements to be directed.
-				var directedElements = findDirectedElements(this.element, directiveName);
-
-				// [2] loop directed elements
-				_.each(directedElements, function (element) {
-
-					// [2.1] wrap and read data
-					element = this.DOMElementAdapter(element);
-
-					var directiveValue = element.data(directiveName);
-
-					// [2.2] invoke directiveFn
-					//       passing element and directive value.
-					directiveFn.call(this, element, directiveValue)
-
-				}.bind(this));
-
-			}.bind(this));
 		},
-
-		/**
-		 * Define directives.
-		 * @type {[type]}
-		 */
-		directives: require(&#x27;molecular/view/directives&#x27;)
 	});
 
 	viewFactory
 		.assignProto(require(&#x27;molecular/view/dom-manipulation&#x27;))
+		.assignProto(require(&#x27;molecular/view/directives&#x27;))
 		.assignProto(require(&#x27;molecular/view/rendering&#x27;));
 
 	/**

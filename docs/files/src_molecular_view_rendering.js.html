@@ -113,6 +113,11 @@ define(function defMolecularViewRendering(require, exports, module) {
 
 			// insert html
 			this.element.html(html);
+
+			///////////////////////////
+			// initialize directives //
+			///////////////////////////
+			this.incorporate(this.element);
 		}
 
 		return this;

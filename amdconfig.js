@@ -3,6 +3,7 @@ require.config({
 	baseUrl: '/src',
 	paths: {
 		test: '../test',
+		demo: '../demo',
 		requirejs: '../bower_components/requirejs/require',
 		text: '../bower_components/requirejs-text/text',
 		mocha: '../node_modules/mocha/mocha',
@@ -16,9 +17,13 @@ require.config({
 		ramda: '../bower_components/ramda/ramda',
 		'requirejs-text': '../bower_components/requirejs-text/text',
 		underscore: '../bower_components/underscore/underscore',
-		subject: '../bower_components/subject/built/subject'
+		subject: '../bower_components/subject/built/subject',
+		json5: '../bower_components/json5/lib/json5'
 	},
 	shim: {
+		json5: {
+			exports: 'JSON5',
+		},
 		backbone: {
 			exports: 'Backbone',
 			deps: [
