@@ -92,6 +92,8 @@ define(function defMolecularViewDirectiveSystem(require, exports, module) {
 
 	var _ = require(&#x27;lodash&#x27;);
 
+	var aux = require(&#x27;molecular/auxiliary&#x27;);
+
 	/**
 	 * Hash that holds all directive processors.
 	 *
@@ -114,7 +116,7 @@ define(function defMolecularViewDirectiveSystem(require, exports, module) {
 			var viewInstance = viewModule({ element: element });
 
 			// add viewInstance
-			this.addChildren(viewInstance);
+			this.addChild(viewInstance);
 
 		}.bind(this));
 	};
@@ -159,9 +161,9 @@ define(function defMolecularViewDirectiveSystem(require, exports, module) {
 			_.each(directedElements, function (element) {
 
 				// [2.1] wrap and read data
-				var $element = $(element);
+				element = $(element);
 
-				var directiveValue = $element.data(directiveName);
+				var directiveValue = element.data(directiveName);
 
 				// [2.2] invoke directiveFn
 				//       passing element and directive value.

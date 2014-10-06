@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/molecular/view/dom-manipulation.js - molecular</title>
+    <title>src/molecular/node/channel-system.js - molecular</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -82,29 +82,119 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: src/molecular/view/dom-manipulation.js</h1>
+                        <h1 class="file-heading">File: src/molecular/node/channel-system.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
-define(function defMolecularViewDOM(require, exports, module) {
+define(function defNodeTreeManagement(require, exports, module) {
 
+	// load es5-shim
+	require(&#x27;es5-shim&#x27;);
 
+	/////////////////////////
+	/// PARENT MANAGEMENT ///
+	/////////////////////////
+	exports.addUpstream = function addUpstream(node) {
+		if (Array.isArray(node)) {
+			// if it is an array of nodes, add them all
+			node.forEach(this.addUpstream.bind(this));
+		} else {
+
+			// ignore addition if the node is already listed as
+			// one of the instance&#x27;s sources.
+			if (!this.isUpstream(node)) {
+
+				// push into array
+				this.upstreamNodes.push(node);
+
+				// invoke the &#x27;addDownstream&#x27; onto
+				// the new source
+				node.addDownstream(this);
+			}
+		}
+
+		return this;
+	};
 
 	/**
-	 * The
-	 * @type {[type]}
+	 * Returns the upper node at a given index.
+	 * If no index is passed as argument,
+	 * return all upper nodes.
+	 *
+	 * @param  {[type]} index [description]
+	 * @return {[type]}       [description]
 	 */
-	exports.DOMElementAdapter = require(&#x27;jquery&#x27;);
+	exports.getUpstream = function getUpstream(index) {
 
-
-	exports.html = function html() {
-		this.element.html.apply(this, _.toArray(arguments));
+		if (arguments.length === 0) {
+			return this.upstreamNodes;
+		} else {
+			return this.upstreamNodes[index];
+		}
 	};
 
-	exports.css = function css() {
-		this.element.css.apply(this, _.toArray(arguments));
+	/**
+	 * Checks whether a given node is
+	 * @param  {[type]}  node [description]
+	 * @return {Boolean}      [description]
+	 */
+	exports.isUpstream = function isUpstream(node) {
+
+		if (arguments.length === 0) {
+			// simply check if there are upper nodes
+			return this.getUpstream().length !== 0;
+		} else {
+			// check if the node is in the immediate list
+			return this.getUpstream().indexOf(node) !== -1;
+		}
 	};
 
+
+
+
+
+
+
+
+
+
+
+	/////////////////
+	// DESTINATION //
+	/////////////////
+	exports.getDownstream = function getDownstream(index) {
+		if (arguments.length === 0) {
+			return this.downstreamNodes;
+		} else {
+			return this.downstreamNodes[index];
+		}
+	};
+
+	/**
+	 * Add nodes downstream.
+	 * @param {[type]} node [description]
+	 */
+	exports.addDownstream = function addDownstream(node) {
+		if (Array.isArray(node)) {
+			node.forEach(this.addDownstream.bind(this));
+		} else {
+			if (!this.isDownstream(node)) {
+				this.downstreamNodes.push(node);
+				node.addUpstream(this);
+			}
+		}
+	};
+
+	exports.isDownstream = function isDownstream(node) {
+		if (arguments.length === 0) {
+			// no specific node queried
+			// simply verify if instance has destination
+			return this.getDownstream().length !== 0;
+		} else {
+			// check if a specific node is in the immediate destination list
+			return this.getDownstream().indexOf(node) !== -1;
+		}
+	};
 
 });
 

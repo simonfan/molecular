@@ -96,103 +96,35 @@ define(function defMolecularNode(require, exports, module) {
 	// load base molecular factory.
 	var factory = require(&#x27;subject&#x27;);
 
-
 	var aux = require(&#x27;molecular/auxiliary&#x27;);
-
 
 	var molecularNode = factory({
 		initialize: function initializeMolecularNode(options) {
 
+			// default options.
 			options = options || {};
 
-			this.children = options.children || [];
-			if (options.child) {
-				this.children.push(options.child)
-			}
-
-
-			this.parents = options.parents || [];
-			if (options.parent) {
-				this.parents.push(options.parent);
-			}
-
 			/**
-			 * Hash on which event handlers will be set.
-			 * @type {Object}
+			 * Array to hold all the nodes upstream and downstream.
+			 * @type {Array}
 			 */
-			this._eventHandlers = {};
-		},
+			this.upstreamNodes   = [];
+			this.downstreamNodes = [];
 
-		getParent: function getParent(index) {
+			if (options.upstream) {
+				this.addUpstream(options.upstream);
+			}
 
-			if (arguments.length === 0) {
-				return this.parents;
-			} else {
-				return this.parent[index];
+			if (options.downstream) {
+				this.addDownstream(options.downstream);
 			}
 		},
 
-		addParent: function addParent(parent) {
-			if (Array.isArray(parent)) {
-				parent.forEach(function (parent) {
-					parent.addChild(this);
-
-					this.parent.push(parent);
-				}.bind(this));
-			} else {
-				parent.addChild(this);
-				this.parent.push(parent);
-			}
-
-			return this;
-		},
-
-		removeParent: function removeParent(parent) {
-			if (Array.isArray(parent)) {
-				parent.forEach(function (p) {
-
-				}.bind(this));
-			} else {
-
-				// get index
-				var index = this.parents.indexOf(parent);
-
-				this.parents.
-
-			}
-		},
-
-		getChild: function getChild(index) {
-
-			if (arguments.length === 0) {
-				return this.children;
-			} else {
-				return this.children[index];
-			}
-
-		},
-
-		addChild: function addChild(child) {
-
-
-			if (Array.isArray(child)) {
-				child.forEach(function (child) {
-					child.addParent(this);
-
-					this.child.push(child);
-				}.bind(this));
-			} else {
-				child.addParent(this);
-				this.child.push(child);
-			}
-
-			return this;
-		},
 	});
 
 	molecularNode
-		.assignProto(require(&#x27;molecular/node/event-system&#x27;))
-		.assignProto(require(&#x27;molecular/node/command-channel&#x27;));
+		.assignProto(require(&#x27;molecular/node/message-system&#x27;))
+		.assignProto(require(&#x27;molecular/node/channel-system&#x27;));
 
 	module.exports = molecularNode;
 });

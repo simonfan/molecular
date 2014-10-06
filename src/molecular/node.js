@@ -8,39 +8,37 @@ define(function defMolecularNode(require, exports, module) {
 	// load base molecular factory.
 	var factory = require('subject');
 
-
 	var aux = require('molecular/auxiliary');
-
 
 	var molecularNode = factory({
 		initialize: function initializeMolecularNode(options) {
 
+			// default options.
 			options = options || {};
 
-			this.children = options.children || [];
-			if (options.child) {
-				this.children.push(options.child)
-			}
-
-
-			this.parents = options.parents || [];
-			if (options.parent) {
-				this.parents.push(options.parent);
-			}
-
 			/**
-			 * Hash on which event handlers will be set.
-			 * @type {Object}
+			 * Array to hold all the nodes upstream and downstream.
+			 * @type {Array}
 			 */
-			this._eventHandlers = {};
+			this.upstreamNodes   = [];
+			this.downstreamNodes = [];
+
+			if (options.upstream) {
+				this.addUpstream(options.upstream);
+			}
+
+			if (options.downstream) {
+				this.addDownstream(options.downstream);
+			}
 		},
 
 	});
 
 	molecularNode
-		.assignProto(require('molecular/node/tree-system'))
-		.assignProto(require('molecular/node/event-system'))
-		.assignProto(require('molecular/node/command-channel'));
+		.assignProto(require('molecular/node/channel-system'))
+		.assignProto(require('molecular/node/message-system'))
+		.assignProto(require('molecular/node/invocation-system'))
+		.assignProto(require('molecular/node/event-system'));
 
 	module.exports = molecularNode;
 });

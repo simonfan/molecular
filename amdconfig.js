@@ -22,7 +22,7 @@ require.config({
 	},
 	shim: {
 		json5: {
-			exports: 'JSON5',
+			exports: 'JSON5'
 		},
 		backbone: {
 			exports: 'Backbone',

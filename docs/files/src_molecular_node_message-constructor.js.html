@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/molecular/node/command.js - molecular</title>
+    <title>src/molecular/node/message-constructor.js - molecular</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -82,87 +82,58 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: src/molecular/node/command.js</h1>
+                        <h1 class="file-heading">File: src/molecular/node/message-constructor.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
-define(function defCommandSystem(require, exports, module) {
+define(function defMessageObject(require, exports, module) {
 
 
-	var subject = require(&#x27;subject&#x27;);
+	var subject = require(&#x27;subject&#x27;),
+		_       = require(&#x27;lodash&#x27;);
 
-	var singleResponseCommand = exports.singleResponse = subject({
-		initialize: function initializeSingleResponseCommand(options) {
+	var baseMessage = exports.base = subject({
+		initialize: function initializeMessage(options) {
 
-			this.name   = options.name;
-			this.issuer = options.issuer;
-			this.args   = options.args;
-
-			this.propagate = true;
-
-			this.response = void(0);
-		},
-
-		/**
-		 * Set propagate flag to false.
-		 * @return {[type]} [description]
-		 */
-		stopPropagation: function stopPropagation() {
-			this.propagate = false;
-		},
-
-		/**
-		 * Set the response property then
-		 * stop propagation.
-		 *
-		 * @param  {[type]} value [description]
-		 * @return {[type]}       [description]
-		 */
-		respond: function respond(value) {
-			this.response = value;
-			this.stopPropagation();
-		}
-	});
-
-	var multiResponseCommand = exports.multiResponse = subject({
-		initialize: function initializeSingleResponseCommand(options) {
-
-			this.name   = options.name;
-			this.issuer = options.issuer;
-			this.args   = options.args;
-
-			this.propagate = true;
+			_.assign(this, options);
 
 			/**
-			 * Response should be an array.
-			 * @type {Array}
+			 * Var that holds propagation status.
+			 * @type {Boolean}
 			 */
+			this.propagate = true;
+		},
+	});
+
+	var message = exports.message = baseMessage.extend({
+
+		initialize: function initializeMessage(options) {
+
+			baseMessage.prototype.initialize.call(this, options);
+		},
+
+
+		respond: function respond(response) {
+			this.response = response;
+
+			this.propagate = false;
+		},
+	});
+
+	var broadcast = exports.broadcast = baseMessage.extend({
+
+		initialize: function initializeBroadcastMessage(options) {
+
+			baseMessage.prototype.initialize.call(this, options);
+
+			// response is an array.
 			this.response = [];
 		},
 
-		/**
-		 * Set propagate flag to false.
-		 * @return {[type]} [description]
-		 */
-		stopPropagation: function stopPropagation() {
-			this.propagate = false;
-		},
-
-		/**
-		 * Set the response property then
-		 * stop propagation.
-		 *
-		 * @param  {[type]} value [description]
-		 * @return {[type]}       [description]
-		 */
-		respond: function respond(value) {
-			this.response.push(value);
-
-			// do not stop propagation.
+		respond: function respond(response) {
+			this.response.push(response);
 		}
 	});
-
-
 });
 
     </pre>

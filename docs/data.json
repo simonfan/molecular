@@ -11,15 +11,22 @@
             "fors": {},
             "namespaces": {}
         },
-        "src/molecular/node/command-channel.js": {
-            "name": "src/molecular/node/command-channel.js",
+        "src/molecular/node/channel-system.js": {
+            "name": "src/molecular/node/channel-system.js",
             "modules": {},
             "classes": {},
             "fors": {},
             "namespaces": {}
         },
-        "src/molecular/node/command.js": {
-            "name": "src/molecular/node/command.js",
+        "src/molecular/node/message-constructor.js": {
+            "name": "src/molecular/node/message-constructor.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src/molecular/node/message-system.js": {
+            "name": "src/molecular/node/message-system.js",
             "modules": {},
             "classes": {},
             "fors": {},
@@ -34,13 +41,6 @@
         },
         "src/molecular/view/directives.js": {
             "name": "src/molecular/view/directives.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
-        },
-        "src/molecular/view/dom-manipulation.js": {
-            "name": "src/molecular/view/dom-manipulation.js",
             "modules": {},
             "classes": {},
             "fors": {},
@@ -107,24 +107,76 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/command-channel.js",
-            "line": 5,
-            "description": "Load command builders.",
-            "type": "{[type]}",
+            "file": "src/molecular/node/channel-system.js",
+            "line": 31,
+            "description": "Returns the upper node at a given index.\nIf no index is passed as argument,\nreturn all upper nodes.",
+            "params": [
+                {
+                    "name": "index",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
             "class": ""
         },
         {
-            "file": "src/molecular/node/command-channel.js",
-            "line": 34,
-            "description": "Channels a command through an array of nodes",
+            "file": "src/molecular/node/channel-system.js",
+            "line": 48,
+            "description": "Checks whether a given node is",
             "params": [
                 {
-                    "name": "nodes",
+                    "name": "node",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "Boolean"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/channel-system.js",
+            "line": 85,
+            "description": "Add nodes downstream.",
+            "params": [
+                {
+                    "name": "node",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/message-constructor.js",
+            "line": 12,
+            "description": "Var that holds propagation status.",
+            "type": "{Boolean}",
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/message-system.js",
+            "line": 8,
+            "description": "Sends the message upstream",
+            "params": [
+                {
+                    "name": "message",
                     "description": "[description]",
                     "type": "[type]"
                 },
                 {
-                    "name": "command",
+                    "name": "sender",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "recipients",
                     "description": "[description]",
                     "type": "[type]"
                 }
@@ -136,12 +188,22 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/command-channel.js",
-            "line": 66,
-            "description": "Issue command up the chain.",
+            "file": "src/molecular/node/message-system.js",
+            "line": 46,
+            "description": "Send message downstream.",
             "params": [
                 {
-                    "name": "name",
+                    "name": "message",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "sender",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "recipients",
                     "description": "[description]",
                     "type": "[type]"
                 }
@@ -153,49 +215,17 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/command-channel.js",
-            "line": 86,
-            "description": "Issues command down the chain.",
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/command-channel.js",
-            "line": 128,
-            "description": "Receives a command.",
+            "file": "src/molecular/node/message-system.js",
+            "line": 101,
+            "description": "Sends a message.",
             "params": [
                 {
-                    "name": "command",
+                    "name": "messageOptions",
                     "description": "[description]",
                     "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/command.js",
-            "line": 18,
-            "description": "Set propagate flag to false.",
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/command.js",
-            "line": 26,
-            "description": "Set the response property then\nstop propagation.",
-            "params": [
+                },
                 {
-                    "name": "value",
+                    "name": "messageData",
                     "description": "[description]",
                     "type": "[type]"
                 }
@@ -207,42 +237,15 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/command.js",
-            "line": 48,
-            "description": "Response should be an array.",
-            "type": "{Array}",
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/command.js",
-            "line": 55,
-            "description": "Set propagate flag to false.",
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/node/command.js",
-            "line": 63,
-            "description": "Set the response property then\nstop propagation.",
-            "params": [
-                {
-                    "name": "value",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
+            "file": "src/molecular/node/message-system.js",
+            "line": 120,
+            "description": "Message recipients.",
+            "type": "{Object}",
             "class": ""
         },
         {
             "file": "src/molecular/view/directives/dom-events.js",
-            "line": 7,
+            "line": 38,
             "description": "<div data-m-click=\"something\"></div>",
             "params": [
                 {
@@ -259,14 +262,14 @@
         },
         {
             "file": "src/molecular/view/directives.js",
-            "line": 7,
+            "line": 9,
             "description": "Hash that holds all directive processors.",
             "type": "{Object}",
             "class": ""
         },
         {
             "file": "src/molecular/view/directives.js",
-            "line": 15,
+            "line": 17,
             "description": "[mView description]",
             "params": [
                 {
@@ -288,26 +291,26 @@
         },
         {
             "file": "src/molecular/view/directives.js",
-            "line": 35,
+            "line": 37,
             "description": "DOM events directives.",
             "class": ""
         },
         {
             "file": "src/molecular/view/directives.js",
-            "line": 41,
+            "line": 43,
             "description": "Reference to directives",
             "type": "{[type]}",
             "class": ""
         },
         {
             "file": "src/molecular/view/directives.js",
-            "line": 49,
+            "line": 51,
             "description": "Finds all elements that should be processed by a\ngiven directive given a rootElement and a directiveName",
             "class": ""
         },
         {
             "file": "src/molecular/view/directives.js",
-            "line": 60,
+            "line": 62,
             "description": "Incorporates an element to the",
             "params": [
                 {
@@ -320,13 +323,6 @@
                 "description": "[description]",
                 "type": "[type]"
             },
-            "class": ""
-        },
-        {
-            "file": "src/molecular/view/dom-manipulation.js",
-            "line": 5,
-            "description": "The",
-            "type": "{[type]}",
             "class": ""
         },
         {
@@ -385,9 +381,9 @@
         },
         {
             "file": "src/molecular/node.js",
-            "line": 31,
-            "description": "Hash on which event handlers will be set.",
-            "type": "{Object}",
+            "line": 19,
+            "description": "Array to hold all the nodes upstream and downstream.",
+            "type": "{Array}",
             "class": ""
         },
         {
@@ -423,76 +419,64 @@
             "line": " src/molecular/data/model/item.js:23"
         },
         {
-            "message": "Missing item type\nLoad command builders.",
-            "line": " src/molecular/node/command-channel.js:5"
+            "message": "Missing item type\nReturns the upper node at a given index.\nIf no index is passed as argument,\nreturn all upper nodes.",
+            "line": " src/molecular/node/channel-system.js:31"
         },
         {
-            "message": "Missing item type\nChannels a command through an array of nodes",
-            "line": " src/molecular/node/command-channel.js:34"
+            "message": "Missing item type\nChecks whether a given node is",
+            "line": " src/molecular/node/channel-system.js:48"
         },
         {
-            "message": "Missing item type\nIssue command up the chain.",
-            "line": " src/molecular/node/command-channel.js:66"
+            "message": "Missing item type\nAdd nodes downstream.",
+            "line": " src/molecular/node/channel-system.js:85"
         },
         {
-            "message": "Missing item type\nIssues command down the chain.",
-            "line": " src/molecular/node/command-channel.js:86"
+            "message": "Missing item type\nVar that holds propagation status.",
+            "line": " src/molecular/node/message-constructor.js:12"
         },
         {
-            "message": "Missing item type\nReceives a command.",
-            "line": " src/molecular/node/command-channel.js:128"
+            "message": "Missing item type\nSends the message upstream",
+            "line": " src/molecular/node/message-system.js:8"
         },
         {
-            "message": "Missing item type\nSet propagate flag to false.",
-            "line": " src/molecular/node/command.js:18"
+            "message": "Missing item type\nSend message downstream.",
+            "line": " src/molecular/node/message-system.js:46"
         },
         {
-            "message": "Missing item type\nSet the response property then\nstop propagation.",
-            "line": " src/molecular/node/command.js:26"
+            "message": "Missing item type\nSends a message.",
+            "line": " src/molecular/node/message-system.js:101"
         },
         {
-            "message": "Missing item type\nResponse should be an array.",
-            "line": " src/molecular/node/command.js:48"
-        },
-        {
-            "message": "Missing item type\nSet propagate flag to false.",
-            "line": " src/molecular/node/command.js:55"
-        },
-        {
-            "message": "Missing item type\nSet the response property then\nstop propagation.",
-            "line": " src/molecular/node/command.js:63"
+            "message": "Missing item type\nMessage recipients.",
+            "line": " src/molecular/node/message-system.js:120"
         },
         {
             "message": "Missing item type\n<div data-m-click=\"something\"></div>",
-            "line": " src/molecular/view/directives/dom-events.js:7"
+            "line": " src/molecular/view/directives/dom-events.js:38"
         },
         {
             "message": "Missing item type\nHash that holds all directive processors.",
-            "line": " src/molecular/view/directives.js:7"
+            "line": " src/molecular/view/directives.js:9"
         },
         {
             "message": "Missing item type\n[mView description]",
-            "line": " src/molecular/view/directives.js:15"
+            "line": " src/molecular/view/directives.js:17"
         },
         {
             "message": "Missing item type\nDOM events directives.",
-            "line": " src/molecular/view/directives.js:35"
+            "line": " src/molecular/view/directives.js:37"
         },
         {
             "message": "Missing item type\nReference to directives",
-            "line": " src/molecular/view/directives.js:41"
+            "line": " src/molecular/view/directives.js:43"
         },
         {
             "message": "Missing item type\nFinds all elements that should be processed by a\ngiven directive given a rootElement and a directiveName",
-            "line": " src/molecular/view/directives.js:49"
+            "line": " src/molecular/view/directives.js:51"
         },
         {
             "message": "Missing item type\nIncorporates an element to the",
-            "line": " src/molecular/view/directives.js:60"
-        },
-        {
-            "message": "Missing item type\nThe",
-            "line": " src/molecular/view/dom-manipulation.js:5"
+            "line": " src/molecular/view/directives.js:62"
         },
         {
             "message": "Missing item type\nTemplate defaults to undefined.",
@@ -515,8 +499,8 @@
             "line": " src/molecular/node.js:1"
         },
         {
-            "message": "Missing item type\nHash on which event handlers will be set.",
-            "line": " src/molecular/node.js:31"
+            "message": "Missing item type\nArray to hold all the nodes upstream and downstream.",
+            "line": " src/molecular/node.js:19"
         },
         {
             "message": "Missing item type\nDefine the viewFactory",
