@@ -2,8 +2,50 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 
 	require('es5-shim');
 
+	var subject = require('subject');
 
-	var messageConstructor = require('molecular/node/message-constructor');
+	////////////////////
+	// MESSAGE OBJECT //
+	////////////////////
+	var _singleMessageObject = subject({
+
+		initialize: function initializeMessage(options) {
+			_.assign(this, options);
+			this.propagate = true;
+		},
+
+
+		respond: function respond(response) {
+			this.response = response;
+
+			this.propagate = false;
+		},
+	});
+
+	var _broadcastMessageObject = subject({
+
+		initialize: function initializeBroadcastMessage(options) {
+
+			_.assign(this, options);
+			this.propagate = true;
+
+			// response is an array.
+			this.response = [];
+		},
+
+		respond: function respond(response) {
+			this.response.push(response);
+		}
+	});
+
+	function _buildMessageObject(type, options) {
+
+		return type === 'broadcast' ? _broadcastMessageObject(options) : _singleMessageObject(options);
+
+	}
+	////////////////////
+	// MESSAGE OBJECT //
+	////////////////////
 
 	/**
 	 * Sends the message upstream
@@ -28,7 +70,7 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 		} else {
 
 			// let recipient receive the message
-			_receiveMessage(recipient, message);
+			recipient.receiveMessage(message);
 
 			if (message.propagate) {
 				// propagate
@@ -65,7 +107,7 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 
 		} else {
 			// let recipient receive the message
-			_receiveMessage(recipient, message);
+			recipient.receiveMessage(message);
 
 			if (message.propagate) {
 				// propagate
@@ -81,22 +123,6 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 
 
 
-	function _receiveMessage(recipient, message) {
-
-		if (!message.type) {
-			throw new Error('No message type set.');
-		}
-
-		// retrieve recipient fn
-		var recipientFn = recipient.messageReceivers[message.type];
-
-		// call the recipientFn on the recipient
-		recipientFn.call(recipient, message);
-	}
-
-
-
-
 
 	/**
 	 * Sends a message.
@@ -108,7 +134,7 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 		// set sender
 		options.sender = this;
 
-		var message = messageConstructor('message', options);
+		var message = _buildMessageObject('message', options);
 
 		return options.direction === 'downstream' ?
 			_sendDownstream(this, message) : _sendUpstream(this, message);
@@ -118,14 +144,35 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 
 		options.sender = this;
 
-		var message = messageConstructor('broadcast', options);
+		var message = _buildMessageObject('broadcast', options);
 
 		return options.direction === 'downstream' ?
 			_sendDownstream(this, message) : _sendUpstream(this, message);
 	};
 
 	/**
-	 * Message recipients.
+	 * Method that effectivelly receives the message.
+	 * 
+	 * @param  {[type]} message
+	 * @return {[type]}
+	 */
+	exports.receiveMessage = function receiveMessage(message) {
+
+
+		if (!message.type) {
+			throw new Error('No message type set.');
+		}
+
+		// retrieve this fn
+		var recipientFn = this.messageReceivers[message.type];
+
+		// call the recipientFn on the recipient
+		recipientFn.call(this, message);
+	};
+
+	/**
+	 * Hash that holds all the message receivers.
+	 * 
 	 * @type {Object}
 	 */
 	exports.messageReceivers = {
@@ -145,10 +192,9 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 				message.respond(response);
 			}
 		},
-	};
 
-	// event specific
-	exports.emit = function emit(event, data) {
-
+		'event': function receiveEvent(message) {
+			
+		},
 	};
 });

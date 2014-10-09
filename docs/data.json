@@ -18,13 +18,6 @@
             "fors": {},
             "namespaces": {}
         },
-        "src/molecular/node/message-constructor.js": {
-            "name": "src/molecular/node/message-constructor.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
-        },
         "src/molecular/node/message-system.js": {
             "name": "src/molecular/node/message-system.js",
             "modules": {},
@@ -154,15 +147,8 @@
             "class": ""
         },
         {
-            "file": "src/molecular/node/message-constructor.js",
-            "line": 12,
-            "description": "Var that holds propagation status.",
-            "type": "{Boolean}",
-            "class": ""
-        },
-        {
             "file": "src/molecular/node/message-system.js",
-            "line": 8,
+            "line": 50,
             "description": "Sends the message upstream",
             "params": [
                 {
@@ -189,7 +175,7 @@
         },
         {
             "file": "src/molecular/node/message-system.js",
-            "line": 46,
+            "line": 88,
             "description": "Send message downstream.",
             "params": [
                 {
@@ -216,16 +202,11 @@
         },
         {
             "file": "src/molecular/node/message-system.js",
-            "line": 101,
+            "line": 127,
             "description": "Sends a message.",
             "params": [
                 {
-                    "name": "messageOptions",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
-                {
-                    "name": "messageData",
+                    "name": "options",
                     "description": "[description]",
                     "type": "[type]"
                 }
@@ -238,8 +219,25 @@
         },
         {
             "file": "src/molecular/node/message-system.js",
-            "line": 120,
-            "description": "Message recipients.",
+            "line": 153,
+            "description": "Method that effectivelly receives the message.",
+            "params": [
+                {
+                    "name": "message",
+                    "description": "",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "src/molecular/node/message-system.js",
+            "line": 173,
+            "description": "Hash that holds all the message receivers.",
             "type": "{Object}",
             "class": ""
         },
@@ -431,24 +429,24 @@
             "line": " src/molecular/node/channel-system.js:85"
         },
         {
-            "message": "Missing item type\nVar that holds propagation status.",
-            "line": " src/molecular/node/message-constructor.js:12"
-        },
-        {
             "message": "Missing item type\nSends the message upstream",
-            "line": " src/molecular/node/message-system.js:8"
+            "line": " src/molecular/node/message-system.js:50"
         },
         {
             "message": "Missing item type\nSend message downstream.",
-            "line": " src/molecular/node/message-system.js:46"
+            "line": " src/molecular/node/message-system.js:88"
         },
         {
             "message": "Missing item type\nSends a message.",
-            "line": " src/molecular/node/message-system.js:101"
+            "line": " src/molecular/node/message-system.js:127"
         },
         {
-            "message": "Missing item type\nMessage recipients.",
-            "line": " src/molecular/node/message-system.js:120"
+            "message": "Missing item type\nMethod that effectivelly receives the message.",
+            "line": " src/molecular/node/message-system.js:153"
+        },
+        {
+            "message": "Missing item type\nHash that holds all the message receivers.",
+            "line": " src/molecular/node/message-system.js:173"
         },
         {
             "message": "Missing item type\n<div data-m-click=\"something\"></div>",

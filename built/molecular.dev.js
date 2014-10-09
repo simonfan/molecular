@@ -36,205 +36,6 @@ define('molecular/auxiliary',['require','exports','module'],function defMolecula
 	};
 });
 
-define('molecular/node/message-constructor',['require','exports','module','subject','lodash'],function defMessageObject(require, exports, module) {
-
-
-	var subject = require('subject'),
-		_       = require('lodash');
-
-	var baseMessage = exports.base = subject({
-		initialize: function initializeMessage(options) {
-
-			_.assign(this, options);
-
-			/**
-			 * Var that holds propagation status.
-			 * @type {Boolean}
-			 */
-			this.propagate = true;
-		},
-	});
-
-	var message = exports.message = baseMessage.extend({
-
-		initialize: function initializeMessage(options) {
-
-			baseMessage.prototype.initialize.call(this, options);
-		},
-
-
-		respond: function respond(response) {
-			this.response = response;
-
-			this.propagate = false;
-		},
-	});
-
-	var broadcast = exports.broadcast = baseMessage.extend({
-
-		initialize: function initializeBroadcastMessage(options) {
-
-			baseMessage.prototype.initialize.call(this, options);
-
-			// response is an array.
-			this.response = [];
-		},
-
-		respond: function respond(response) {
-			this.response.push(response);
-		}
-	});
-});
-
-define('molecular/node/message-system',['require','exports','module','es5-shim','molecular/node/message-constructor'],function defMolecularNodeChannelSystem(require, exports, module) {
-
-	require('es5-shim');
-
-
-	var messageConstructor = require('molecular/node/message-constructor');
-
-	/**
-	 * Sends the message upstream
-	 *
-	 * @param  {[type]} message    [description]
-	 * @param  {[type]} sender     [description]
-	 * @param  {[type]} recipients [description]
-	 * @return {[type]}            [description]
-	 */
-	function _sendUpstream(sender, message, recipients) {
-
-		// if no recipients are defined, get the upstream
-		recipients = recipients || [sender];
-
-		// get first recipient
-		var recipient = recipients.shift();
-
-		if (!recipient) {
-			// if no recipient, return the response
-			return message.response;
-
-		} else {
-
-			// let recipient receive the message
-			_receiveMessage(recipient, message);
-
-			if (message.propagate) {
-				// propagate
-
-				recipients = recipient.getUpstream().concat(recipients);
-				// GO RECURSIVE
-				return _sendUpstream(sender, message, recipients);
-			} else {
-				return message.response;
-			}
-
-		}
-	}
-
-	/**
-	 * Send message downstream.
-	 *
-	 * @param  {[type]} message    [description]
-	 * @param  {[type]} sender     [description]
-	 * @param  {[type]} recipients [description]
-	 * @return {[type]}            [description]
-	 */
-	function _sendDownstream(sender, message, recipients) {
-
-		// if no recipients are defined, get the downstream
-		recipients = recipients || sender.getDownstream();
-
-		// get first recipient
-		var recipient = recipients.shift();
-
-		if (!recipient) {
-			// no recipient, return the response
-			return message.response;
-
-		} else {
-			// let recipient receive the message
-			_receiveMessage(recipient, message);
-
-			if (message.propagate) {
-				// propagate
-				recipients = recipient.getDownstream().concat(recipients);
-
-				// GO RECURSIVE
-				return _sendDownstream(sender, message, recipients);
-			} else {
-				return message.response;
-			}
-		}
-	}
-
-
-
-	function _receiveMessage(recipient, message) {
-
-		if (!message.type) {
-			throw new Error('No message type set.');
-		}
-
-		// retrieve recipient fn
-		var recipientFn = recipient.messageReceivers[message.type];
-
-		// call the recipientFn on the recipient
-		recipientFn.call(recipient, message);
-	}
-
-
-
-
-
-	/**
-	 * Sends a message.
-	 * @param  {[type]} messageOptions [description]
-	 * @param  {[type]} messageData    [description]
-	 * @return {[type]}                [description]
-	 */
-	exports.sendMessage = function sendMessage(messageOptions, messageData) {
-
-		messageOptions.data = messageOptions.data || messageData;
-
-		// set sender
-		messageOptions.sender = this;
-
-		var message = messageConstructor.message(messageOptions);
-
-		return messageOptions.direction === 'downstream' ?
-			_sendDownstream(this, message) : _sendUpstream(this, message);
-	};
-
-	/**
-	 * Message recipients.
-	 * @type {Object}
-	 */
-	exports.messageReceivers = {
-		invocation: function receiveInvocation(message) {
-
-			// attempt to
-			var fn = this[message.method];
-
-			if (fn) {
-
-				// if the invoked method is available on this instance
-				// invoke it and respond the message with
-				// whatever it returns.
-				var response = fn.call(this, message);
-
-				// invoke the respond method.
-				message.respond(response);
-			}
-		},
-
-		'event': function receiveEvent(message) {
-			// simply emit an event.
-			this.emit(message.name, message, message.data);
-		}
-	};
-
-});
-
 define('molecular/node/channel-system',['require','exports','module','es5-shim'],function defNodeTreeManagement(require, exports, module) {
 
 	// load es5-shim
@@ -347,12 +148,273 @@ define('molecular/node/channel-system',['require','exports','module','es5-shim']
 
 });
 
+define('molecular/node/message-system',['require','exports','module','es5-shim','subject'],function defMolecularNodeChannelSystem(require, exports, module) {
+
+	require('es5-shim');
+
+	var subject = require('subject');
+
+	////////////////////
+	// MESSAGE OBJECT //
+	////////////////////
+	var _singleMessageObject = subject({
+
+		initialize: function initializeMessage(options) {
+			_.assign(this, options);
+			this.propagate = true;
+		},
+
+
+		respond: function respond(response) {
+			this.response = response;
+
+			this.propagate = false;
+		},
+	});
+
+	var _broadcastMessageObject = subject({
+
+		initialize: function initializeBroadcastMessage(options) {
+
+			_.assign(this, options);
+			this.propagate = true;
+
+			// response is an array.
+			this.response = [];
+		},
+
+		respond: function respond(response) {
+			this.response.push(response);
+		}
+	});
+
+	function _buildMessageObject(type, options) {
+
+		return type === 'broadcast' ? _broadcastMessageObject(options) : _singleMessageObject(options);
+
+	}
+	////////////////////
+	// MESSAGE OBJECT //
+	////////////////////
+
+	/**
+	 * Sends the message upstream
+	 *
+	 * @param  {[type]} message    [description]
+	 * @param  {[type]} sender     [description]
+	 * @param  {[type]} recipients [description]
+	 * @return {[type]}            [description]
+	 */
+	function _sendUpstream(sender, message, recipients) {
+
+		// if no recipients are defined, get the upstream
+		recipients = recipients || [sender];
+
+		// get first recipient
+		var recipient = recipients.shift();
+
+		if (!recipient) {
+			// if no recipient, return the response
+			return message.response;
+
+		} else {
+
+			// let recipient receive the message
+			recipient.receiveMessage(message);
+
+			if (message.propagate) {
+				// propagate
+
+				recipients = recipient.getUpstream().concat(recipients);
+				// GO RECURSIVE
+				return _sendUpstream(sender, message, recipients);
+			} else {
+				return message.response;
+			}
+
+		}
+	}
+
+	/**
+	 * Send message downstream.
+	 *
+	 * @param  {[type]} message    [description]
+	 * @param  {[type]} sender     [description]
+	 * @param  {[type]} recipients [description]
+	 * @return {[type]}            [description]
+	 */
+	function _sendDownstream(sender, message, recipients) {
+
+		// if no recipients are defined, get the downstream
+		recipients = recipients || sender.getDownstream();
+
+		// get first recipient
+		var recipient = recipients.shift();
+
+		if (!recipient) {
+			// no recipient, return the response
+			return message.response;
+
+		} else {
+			// let recipient receive the message
+			recipient.receiveMessage(message);
+
+			if (message.propagate) {
+				// propagate
+				recipients = recipient.getDownstream().concat(recipients);
+
+				// GO RECURSIVE
+				return _sendDownstream(sender, message, recipients);
+			} else {
+				return message.response;
+			}
+		}
+	}
+
+
+
+
+	/**
+	 * Sends a message.
+	 * @param  {[type]} options [description]
+	 * @return {[type]}                [description]
+	 */
+	exports.sendMessage = function sendMessage(options) {
+
+		// set sender
+		options.sender = this;
+
+		var message = _buildMessageObject('message', options);
+
+		return options.direction === 'downstream' ?
+			_sendDownstream(this, message) : _sendUpstream(this, message);
+	};
+
+	exports.broadcastMessage = function broadcastMessage(options) {
+
+		options.sender = this;
+
+		var message = _buildMessageObject('broadcast', options);
+
+		return options.direction === 'downstream' ?
+			_sendDownstream(this, message) : _sendUpstream(this, message);
+	};
+
+	/**
+	 * Method that effectivelly receives the message.
+	 * 
+	 * @param  {[type]} message
+	 * @return {[type]}
+	 */
+	exports.receiveMessage = function receiveMessage(message) {
+
+
+		if (!message.type) {
+			throw new Error('No message type set.');
+		}
+
+		// retrieve this fn
+		var recipientFn = this.messageReceivers[message.type];
+
+		// call the recipientFn on the recipient
+		recipientFn.call(this, message);
+	};
+
+	/**
+	 * Hash that holds all the message receivers.
+	 * 
+	 * @type {Object}
+	 */
+	exports.messageReceivers = {
+		invocation: function receiveInvocation(message) {
+
+			// attempt to
+			var fn = this[message.method];
+
+			if (fn) {
+
+				// if the invoked method is available on this instance
+				// invoke it and respond the message with
+				// whatever it returns.
+				var response = fn.apply(this, message.args);
+
+				// invoke the respond method.
+				message.respond(response);
+			}
+		},
+
+		'event': function receiveEvent(message) {
+			
+		},
+	};
+});
+
+define('molecular/node/invocation-system',['require','exports','module','lodash'],function defInvocationSystem(require, exports, module) {
+
+	var _ = require('lodash');
+
+	//////////////////////////
+	// invocation specific //
+	//////////////////////////
+	function _invoke(options, method) {
+
+		// retrieve the arguments
+		var args = Array.prototype.slice.call(arguments, 2);
+
+		// build up the message.
+		var message = {
+			type     : 'invocation',
+			direction: options.direction,
+			method   : method,
+			args     : args
+		};
+
+		return options.broadcast ?
+			this.broadcastMessage(message) : this.sendMessage(message);
+	};
+
+	exports.invokeUpstream = _.partial(_invoke, {
+		direction: 'upstream',
+		broadcast: false,
+	});
+
+	exports.invokeDownstream = _.partial(_invoke, {
+		direction: 'downstream',
+		broadcast: false
+	});
+
+	exports.multiInvokeUpstream = _.partial(_invoke, {
+		direction: 'upstream',
+		broadcast: true,
+	});
+
+	exports.multiInvokeDownstream = _.partial(_invoke, {
+		direction: 'downstream',
+		broadcast: true
+	});
+
+});
+
+define('molecular/node/event-system',['require','exports','module'],function defEventSystem(require, exports, module) {
+
+
+	exports.emit = function emitEvent(event, data) {
+		var message = {
+			type: 'event',
+			name: event,
+			data: data
+		};
+
+		this.sendMessage(message);
+	};
+});
+
 /**
  * Defines an object factory that is conscious of chain position
  * and is capable of operatijng as a link in a chain of responsibility.
  */
 
-define('molecular/node',['require','exports','module','subject','molecular/auxiliary','molecular/node/message-system','molecular/node/channel-system'],function defMolecularNode(require, exports, module) {
+define('molecular/node',['require','exports','module','subject','molecular/auxiliary','molecular/node/channel-system','molecular/node/message-system','molecular/node/invocation-system','molecular/node/event-system'],function defMolecularNode(require, exports, module) {
 
 	// load base molecular factory.
 	var factory = require('subject');
@@ -384,8 +446,10 @@ define('molecular/node',['require','exports','module','subject','molecular/auxil
 	});
 
 	molecularNode
+		.assignProto(require('molecular/node/channel-system'))
 		.assignProto(require('molecular/node/message-system'))
-		.assignProto(require('molecular/node/channel-system'));
+		.assignProto(require('molecular/node/invocation-system'))
+		.assignProto(require('molecular/node/event-system'));
 
 	module.exports = molecularNode;
 });

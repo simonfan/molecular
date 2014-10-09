@@ -123,8 +123,10 @@ define(function defMolecularNode(require, exports, module) {
 	});
 
 	molecularNode
+		.assignProto(require(&#x27;molecular/node/channel-system&#x27;))
 		.assignProto(require(&#x27;molecular/node/message-system&#x27;))
-		.assignProto(require(&#x27;molecular/node/channel-system&#x27;));
+		.assignProto(require(&#x27;molecular/node/invocation-system&#x27;))
+		.assignProto(require(&#x27;molecular/node/event-system&#x27;));
 
 	module.exports = molecularNode;
 });

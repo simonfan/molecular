@@ -36,7 +36,7 @@ define(function defMolecularNode(require, exports, module) {
 
 	molecularNode
 		.assignProto(require('molecular/node/channel-system'))
-		.assignProto(require('molecular/node/message-system'))
+	//	.assignProto(require('molecular/node/message-system'))
 		.assignProto(require('molecular/node/invocation-system'))
 		.assignProto(require('molecular/node/event-system'));
 

@@ -51,23 +51,12 @@
 
 
 
-			var res = branch11.sendMessage({
-				type     : 'invocation',
-				method   : 'navigate',
-				direction: 'upstream',
-				data: {
-					name: 'Someone'
-				}
-			});
+			var res = branch11.sendInvocationUp('navigate', { name: 'Someone' });
 
 			res.should.eql('ok-branch1');
 
 
-			branch1.sendMessage({
-				type: 'invocation',
-				method: 'navigate',
-				direction: 'upstream',
-			}).should.eql('ok-branch1');
+			branch1.sendInvocationUp('navigate').should.eql('ok-branch1');
 		});
 
 		it('multi-upstream', function () {
@@ -118,12 +107,7 @@
 			c4.addUpstream(b2);
 
 
-			c2.sendMessage({
-				type: 'invocation',
-				direction: 'upstream',
-				method: 'ajaxPost',
-				args: ['lalala']
-			}).should.eql('success');
+			c2.sendInvocationUp('ajaxPost', 'lalala').should.eql('success');
 		});
 	});
 });

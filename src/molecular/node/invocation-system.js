@@ -1,45 +1,207 @@
-define(function defInvocationSystem(require, exports, module) {
+define(function defMolecularNodeChannelSystem(require, exports, module) {
 
-	var _ = require('lodash');
+	require('es5-shim');
 
-	//////////////////////////
-	// invocation specific //
-	//////////////////////////
-	function _invoke(options, method) {
+	var subject = require('subject');
 
-		// retrieve the arguments
-		var args = Array.prototype.slice.call(arguments, 2);
+	////////////////////
+	// MESSAGE OBJECT //
+	////////////////////
+	var _invocationObject = subject({
 
-		// build up the message.
-		var message = {
-			type     : 'invocation',
-			direction: options.direction,
-			method   : method,
-			args     : args
-		};
+		initialize: function initializeInvocationObject(options) {
+			_.assign(this, options);
+			this.propagate = true;
+		},
 
-		return options.broadcast ?
-			this.broadcastMessage(message) : this.sendMessage(message);
+
+		respond: function respond(response) {
+			this.response = response;
+
+			this.propagate = false;
+		},
+	});
+
+	var _broadcastInvocationObject = subject({
+
+		initialize: function initializeMultiInvocationObject(options) {
+
+			_.assign(this, options);
+			this.propagate = true;
+
+			// response is an array.
+			this.response = [];
+		},
+
+		respond: function respond(response) {
+			this.response.push(response);
+		}
+	});
+	////////////////////
+	// MESSAGE OBJECT //
+	////////////////////
+
+	/**
+	 * Sends the invocation upstream
+	 *
+	 * @param  {[type]} invocation    [description]
+	 * @param  {[type]} sender     [description]
+	 * @param  {[type]} recipients [description]
+	 * @return {[type]}            [description]
+	 */
+	function _sendUpstream(sender, invocation, recipients) {
+
+		// if no recipients are defined, get the upstream
+		recipients = recipients || [sender];
+
+		// get first recipient
+		var recipient = recipients.shift();
+
+		if (!recipient) {
+			// if no recipient, return the response
+			return invocation.response;
+
+		} else {
+
+			// let recipient receive the invocation
+			recipient.receiveInvocation(invocation);
+
+			if (invocation.propagate) {
+				// propagate
+
+				recipients = recipient.getUpstream().concat(recipients);
+				// GO RECURSIVE
+				return _sendUpstream(sender, invocation, recipients);
+			} else {
+				return invocation.response;
+			}
+
+		}
+	}
+
+	/**
+	 * Send invocation downstream.
+	 *
+	 * @param  {[type]} invocation    [description]
+	 * @param  {[type]} sender     [description]
+	 * @param  {[type]} recipients [description]
+	 * @return {[type]}            [description]
+	 */
+	function _sendDownstream(sender, invocation, recipients) {
+
+		// if no recipients are defined, get the downstream
+		recipients = recipients || sender.getDownstream();
+
+		// get first recipient
+		var recipient = recipients.shift();
+
+		if (!recipient) {
+			// no recipient, return the response
+			return invocation.response;
+
+		} else {
+			// let recipient receive the invocation
+			recipient.receiveInvocation(invocation);
+
+			if (invocation.propagate) {
+				// propagate
+				recipients = recipient.getDownstream().concat(recipients);
+
+				// GO RECURSIVE
+				return _sendDownstream(sender, invocation, recipients);
+			} else {
+				return invocation.response;
+			}
+		}
+	}
+
+
+
+
+	/**
+	 * Sends a invocation.
+	 * @param  {[type]} options [description]
+	 * @return {[type]}                [description]
+	 */
+	exports.sendInvocationUp = function sendInvocationUp(method) {
+
+		var invocation = _invocationObject({
+			sender: this,
+			method: method,
+			args:   Array.prototype.slice.call(arguments, 1),
+		});
+
+		return _sendUpstream(this, invocation);
 	};
 
-	exports.invokeUpstream = _.partial(_invoke, {
-		direction: 'upstream',
-		broadcast: false,
-	});
+	/**
+	 * [sendInvocationDown description]
+	 * @param  {[type]} method [description]
+	 * @return {[type]}        [description]
+	 */
+	exports.sendInvocationDown = function sendInvocationDown(method) {
 
-	exports.invokeDownstream = _.partial(_invoke, {
-		direction: 'downstream',
-		broadcast: false
-	});
+		var invocation = _invocationObject({
+			sender: this,
+			method: method,
+			args:   Array.prototype.slice.call(arguments, 1),
+		});
 
-	exports.multiInvokeUpstream = _.partial(_invoke, {
-		direction: 'upstream',
-		broadcast: true,
-	});
+		return _sendDownstream(this, invocation);
+	};
 
-	exports.multiInvokeDownstream = _.partial(_invoke, {
-		direction: 'downstream',
-		broadcast: true
-	});
+	/**
+	 * [broadcastInvocationUp description]
+	 * @param  {[type]} method [description]
+	 * @return {[type]}        [description]
+	 */
+	exports.broadcastInvocationUp = function broadcastInvocationUp(method) {
 
+		var invocation = _broadcastInvocationObject({
+			sender: this,
+			method: method,
+			args:   Array.prototype.slice.call(arguments, 1),
+		});
+
+		return _sendUpstream(this, invocation);
+	};
+
+	/**
+	 * [broadcastInvocationDown description]
+	 * @param  {[type]} method [description]
+	 * @return {[type]}        [description]
+	 */
+	exports.broadcastInvocationDown = function broadcastInvocationDown(method) {
+
+		var invocation = _broadcastInvocationObject({
+			sender: this,
+			method: method,
+			args:   Array.prototype.slice.call(arguments, 1),
+		});
+
+		return _sendDownstream(this, invocation);
+	};
+
+	/**
+	 * Method that effectivelly receives the invocation.
+	 * 
+	 * @param  {[type]} invocation
+	 * @return {[type]}
+	 */
+	exports.receiveInvocation = function receiveInvocation(invocation) {
+
+		// attempt to
+		var fn = this[invocation.method];
+
+		if (fn) {
+
+			// if the invoked method is available on this instance
+			// invoke it and respond the invocation with
+			// whatever it returns.
+			var response = fn.apply(this, invocation.args);
+
+			// invoke the respond method.
+			invocation.respond(response);
+		}
+	};
 });

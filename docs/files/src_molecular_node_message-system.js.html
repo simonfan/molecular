@@ -90,8 +90,50 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 
 	require(&#x27;es5-shim&#x27;);
 
+	var subject = require(&#x27;subject&#x27;);
 
-	var messageConstructor = require(&#x27;molecular/node/message-constructor&#x27;);
+	////////////////////
+	// MESSAGE OBJECT //
+	////////////////////
+	var _singleMessageObject = subject({
+
+		initialize: function initializeMessage(options) {
+			_.assign(this, options);
+			this.propagate = true;
+		},
+
+
+		respond: function respond(response) {
+			this.response = response;
+
+			this.propagate = false;
+		},
+	});
+
+	var _broadcastMessageObject = subject({
+
+		initialize: function initializeBroadcastMessage(options) {
+
+			_.assign(this, options);
+			this.propagate = true;
+
+			// response is an array.
+			this.response = [];
+		},
+
+		respond: function respond(response) {
+			this.response.push(response);
+		}
+	});
+
+	function _buildMessageObject(type, options) {
+
+		return type === &#x27;broadcast&#x27; ? _broadcastMessageObject(options) : _singleMessageObject(options);
+
+	}
+	////////////////////
+	// MESSAGE OBJECT //
+	////////////////////
 
 	/**
 	 * Sends the message upstream
@@ -116,7 +158,7 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 		} else {
 
 			// let recipient receive the message
-			_receiveMessage(recipient, message);
+			recipient.receiveMessage(message);
 
 			if (message.propagate) {
 				// propagate
@@ -153,7 +195,7 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 
 		} else {
 			// let recipient receive the message
-			_receiveMessage(recipient, message);
+			recipient.receiveMessage(message);
 
 			if (message.propagate) {
 				// propagate
@@ -169,44 +211,56 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 
 
 
-	function _receiveMessage(recipient, message) {
+
+	/**
+	 * Sends a message.
+	 * @param  {[type]} options [description]
+	 * @return {[type]}                [description]
+	 */
+	exports.sendMessage = function sendMessage(options) {
+
+		// set sender
+		options.sender = this;
+
+		var message = _buildMessageObject(&#x27;message&#x27;, options);
+
+		return options.direction === &#x27;downstream&#x27; ?
+			_sendDownstream(this, message) : _sendUpstream(this, message);
+	};
+
+	exports.broadcastMessage = function broadcastMessage(options) {
+
+		options.sender = this;
+
+		var message = _buildMessageObject(&#x27;broadcast&#x27;, options);
+
+		return options.direction === &#x27;downstream&#x27; ?
+			_sendDownstream(this, message) : _sendUpstream(this, message);
+	};
+
+	/**
+	 * Method that effectivelly receives the message.
+	 * 
+	 * @param  {[type]} message
+	 * @return {[type]}
+	 */
+	exports.receiveMessage = function receiveMessage(message) {
+
 
 		if (!message.type) {
 			throw new Error(&#x27;No message type set.&#x27;);
 		}
 
-		// retrieve recipient fn
-		var recipientFn = recipient.messageReceivers[message.type];
+		// retrieve this fn
+		var recipientFn = this.messageReceivers[message.type];
 
 		// call the recipientFn on the recipient
-		recipientFn.call(recipient, message);
-	}
-
-
-
-
-
-	/**
-	 * Sends a message.
-	 * @param  {[type]} messageOptions [description]
-	 * @param  {[type]} messageData    [description]
-	 * @return {[type]}                [description]
-	 */
-	exports.sendMessage = function sendMessage(messageOptions, messageData) {
-
-		messageOptions.data = messageOptions.data || messageData;
-
-		// set sender
-		messageOptions.sender = this;
-
-		var message = messageConstructor.message(messageOptions);
-
-		return messageOptions.direction === &#x27;downstream&#x27; ?
-			_sendDownstream(this, message) : _sendUpstream(this, message);
+		recipientFn.call(this, message);
 	};
 
 	/**
-	 * Message recipients.
+	 * Hash that holds all the message receivers.
+	 * 
 	 * @type {Object}
 	 */
 	exports.messageReceivers = {
@@ -220,7 +274,7 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 				// if the invoked method is available on this instance
 				// invoke it and respond the message with
 				// whatever it returns.
-				var response = fn.call(this, message);
+				var response = fn.apply(this, message.args);
 
 				// invoke the respond method.
 				message.respond(response);
@@ -228,11 +282,9 @@ define(function defMolecularNodeChannelSystem(require, exports, module) {
 		},
 
 		&#x27;event&#x27;: function receiveEvent(message) {
-			// simply emit an event.
-			this.emit(message.name, message, message.data);
-		}
+			
+		},
 	};
-
 });
 
     </pre>
